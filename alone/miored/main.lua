@@ -3,6 +3,7 @@ Model = require("model")
 Texture = require("texture")
 Input = require("input")
 UI = require("ui")
+Audio = require("AudioManager")
 
 local state = {
     W = 0, H = 0,
@@ -46,6 +47,8 @@ function love.load()
     UI.init(state)
     state.selectedFace = Model.addCube(state.faces, 0, 0.5, 0, state.colorIndex)
     state.setStatus("C=cube F=face Del=delete S=save I=texture +/-=scale 1-5=rotate Arrows=move")
+
+    Audio:playAt("tmp.mp3", 0, 0, 0, 1.0)
 end
 
 function love.resize(w, h)
@@ -58,6 +61,8 @@ function love.update(dt)
         state.statusTimer = state.statusTimer - dt
     end
     state.hoveredFace = UI.findFaceAt(love.mouse.getPosition())
+
+    Audio:setListenerPosition(Camera.x, Camera.y, Camera.z)
 end
 
 function love.draw()

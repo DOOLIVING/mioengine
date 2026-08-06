@@ -1,0 +1,22 @@
+# mioengine project config
+# Format: key = value
+
+# Window
+window_title = mioengine
+window_width = 1024
+window_height = 768
+window_resizable = true
+window_minwidth = 640
+window_minheight = 480
+
+# Default scene
+default_scene = menu
+
+# Scenes: name = script_path
+scene = menu scripts/menu.mio
+scene = level1 scripts/level1.mio
+scene = level2 scripts/level2.mio
+scene = demo2d scripts/demo2d.mio
+scene = physics_demo scripts/physics_demo.mio
+scene = demo3d scripts/demo3d.mio
+scene = particles_demo scripts/particles_demo.mio

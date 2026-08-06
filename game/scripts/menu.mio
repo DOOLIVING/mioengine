@@ -1,0 +1,44 @@
+// ========== MENU ==========
+// Main menu scene
+
+on_draw
+    get_canvas_size => W, H
+
+    draw_rect 0, 0, W, H, 0.08, 0.1, 0.15, 1
+
+    let titleY = H / 2 - 240
+    draw_text "MIOENGINE", W / 2, titleY, 40, 0.2, 0.6, 0.9, 1, center
+    draw_text "2D/3D Game Engine", W / 2, titleY + 50, 16, 0.4, 0.5, 0.6, 0.8, center
+
+    let btnW = 200
+    let btnH = 32
+    let btnX = W / 2 - btnW / 2
+    let startY = H / 2 - 140
+
+    ui_button btnX, startY, btnW, btnH, "Level 1 (3D FPS)" id = "level1"
+    if ui_clicked "level1" then switch_scene "level1" end
+
+    ui_button btnX, startY + 38, btnW, btnH, "Level 2 (3D FPS)" id = "level2"
+    if ui_clicked "level2" then switch_scene "level2" end
+
+    ui_button btnX, startY + 76, btnW, btnH, "3D Physics + Particles" id = "demo3d"
+    if ui_clicked "demo3d" then switch_scene "demo3d" end
+
+    ui_button btnX, startY + 114, btnW, btnH, "2D Sprite Demo" id = "demo2d"
+    if ui_clicked "demo2d" then switch_scene "demo2d" end
+
+    ui_button btnX, startY + 152, btnW, btnH, "2D Physics" id = "physics"
+    if ui_clicked "physics" then switch_scene "physics_demo" end
+
+    ui_button btnX, startY + 190, btnW, btnH, "2D Particles" id = "particles"
+    if ui_clicked "particles" then switch_scene "particles_demo" end
+
+    ui_button btnX, startY + 248, btnW, btnH, "Quit" id = "quit"
+    if ui_clicked "quit" then exit_game end
+
+    draw_text "v2.0  |  F1=Console  F3=Stats", W / 2, H - 30, 10, 0.3, 0.3, 0.4, 0.6, center
+end
+
+on_key "escape"
+    exit_game
+end

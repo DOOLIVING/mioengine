@@ -1,0 +1,15 @@
+// Platform - moves up and down sinusoidally
+let _time = 0
+let startX = 0
+let startY = 0.5
+let startZ = 3
+
+create_model platform from "models/deco_crate.txt" at startX, startY, startZ scale 2
+get_pos platform => startX, startY, startZ
+
+on_update
+    let _time = _time + 0.016
+    let newY = startY + sin(_time * 1.5) * 0.8
+    set_pos platform to startX, newY, startZ
+    set_rot y platform 0.5
+end

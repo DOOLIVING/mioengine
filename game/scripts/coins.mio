@@ -1,0 +1,94 @@
+// Coins - float and collect with E near them
+let collected = 0
+let _time = 0
+let coinCount = 5
+
+let coin1 = create_model from "models/deco_coin.txt" at 2, 0.3, 1 rotatey 1.2
+let coin2 = create_model from "models/deco_coin.txt" at -2, 0.3, 2 rotatey 1.2
+let coin3 = create_model from "models/deco_coin.txt" at 4, 0.3, 0 rotatey 1.2
+let coin4 = create_model from "models/deco_coin.txt" at -4, 0.3, -1 rotatey 1.2
+let coin5 = create_model from "models/deco_coin.txt" at 0, 0.3, 4 rotatey 1.2
+
+let alive1 = 1
+let alive2 = 1
+let alive3 = 1
+let alive4 = 1
+let alive5 = 1
+
+let baseY1 = 0.3
+let baseY2 = 0.3
+let baseY3 = 0.3
+let baseY4 = 0.3
+let baseY5 = 0.3
+
+on_update
+    let _time = _time + 0.016
+    if alive1 == 1 then
+        set_pos coin1 to 2, baseY1 + sin(_time * 2 + 1) * 0.1, 1
+    end
+    if alive2 == 1 then
+        set_pos coin2 to -2, baseY2 + sin(_time * 2 + 2) * 0.1, 2
+    end
+    if alive3 == 1 then
+        set_pos coin3 to 4, baseY3 + sin(_time * 2 + 3) * 0.1, 0
+    end
+    if alive4 == 1 then
+        set_pos coin4 to -4, baseY4 + sin(_time * 2 + 4) * 0.1, -1
+    end
+    if alive5 == 1 then
+        set_pos coin5 to 0, baseY5 + sin(_time * 2 + 5) * 0.1, 4
+    end
+end
+
+on_key "e"
+    get_pos camera => cx, cy, cz
+    if alive1 == 1 then
+        get_pos coin1 => ox, oy, oz
+        if dist(cx, cy, cz, ox, oy, oz) < 1.5 then
+            destroy coin1
+            let alive1 = 0
+            let collected = collected + 1
+            say "Coin collected! Total: " + collected
+        end
+    end
+    if alive2 == 1 then
+        get_pos coin2 => ox, oy, oz
+        if dist(cx, cy, cz, ox, oy, oz) < 1.5 then
+            destroy coin2
+            let alive2 = 0
+            let collected = collected + 1
+            say "Coin collected! Total: " + collected
+        end
+    end
+    if alive3 == 1 then
+        get_pos coin3 => ox, oy, oz
+        if dist(cx, cy, cz, ox, oy, oz) < 1.5 then
+            destroy coin3
+            let alive3 = 0
+            let collected = collected + 1
+            say "Coin collected! Total: " + collected
+        end
+    end
+    if alive4 == 1 then
+        get_pos coin4 => ox, oy, oz
+        if dist(cx, cy, cz, ox, oy, oz) < 1.5 then
+            destroy coin4
+            let alive4 = 0
+            let collected = collected + 1
+            say "Coin collected! Total: " + collected
+        end
+    end
+    if alive5 == 1 then
+        get_pos coin5 => ox, oy, oz
+        if dist(cx, cy, cz, ox, oy, oz) < 1.5 then
+            destroy coin5
+            let alive5 = 0
+            let collected = collected + 1
+            say "Coin collected! Total: " + collected
+        end
+    end
+end
+
+on_key "c"
+    say "Coins: " + collected
+end

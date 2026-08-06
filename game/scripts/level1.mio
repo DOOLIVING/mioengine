@@ -1,0 +1,1325 @@
+// ========== LEVEL 1 ==========
+// All scene setup done in .mio
+
+// Setup engine
+setup_camera 0, 2.5, -3 speed 7 sensitivity 0.0025
+setup_renderer 320, 240 fov 200
+load_texture "assets/texture.png"
+set_mouse relative
+
+// Floor
+add_object floor from "models/floor.txt" at 0, 0, 0 draworder 0
+
+// === IRON FENCE PERIMETER (floor -30..30) ===
+// Front (z = -30)
+add_object fp1 from "models/fence_simple.txt" at -27, 0, -30
+add_object fp2 from "models/fence_simple.txt" at -21, 0, -30
+add_object fp3 from "models/fence_simple.txt" at -15, 0, -30
+add_object fp4 from "models/fence_simple.txt" at -9, 0, -30
+add_object fp5 from "models/fence_simple.txt" at -3, 0, -30
+add_object fp6 from "models/fence_simple.txt" at 3, 0, -30
+add_object fp7 from "models/fence_simple.txt" at 9, 0, -30
+add_object fp8 from "models/fence_simple.txt" at 15, 0, -30
+add_object fp9 from "models/fence_simple.txt" at 21, 0, -30
+add_object fp10 from "models/fence_simple.txt" at 27, 0, -30
+// Back (z = 30)
+add_object bp1 from "models/fence_simple.txt" at -27, 0, 30
+add_object bp2 from "models/fence_simple.txt" at -21, 0, 30
+add_object bp3 from "models/fence_simple.txt" at -15, 0, 30
+add_object bp4 from "models/fence_simple.txt" at -9, 0, 30
+add_object bp5 from "models/fence_simple.txt" at -3, 0, 30
+add_object bp6 from "models/fence_simple.txt" at 3, 0, 30
+add_object bp7 from "models/fence_simple.txt" at 9, 0, 30
+add_object bp8 from "models/fence_simple.txt" at 15, 0, 30
+add_object bp9 from "models/fence_simple.txt" at 21, 0, 30
+add_object bp10 from "models/fence_simple.txt" at 27, 0, 30
+// Left (x = -30, rotated 90)
+add_object lp1 from "models/fence_simple.txt" at -30, 0, -27 rotatey 1.5708
+add_object lp2 from "models/fence_simple.txt" at -30, 0, -21 rotatey 1.5708
+add_object lp3 from "models/fence_simple.txt" at -30, 0, -15 rotatey 1.5708
+add_object lp4 from "models/fence_simple.txt" at -30, 0, -9 rotatey 1.5708
+add_object lp5 from "models/fence_simple.txt" at -30, 0, -3 rotatey 1.5708
+add_object lp6 from "models/fence_simple.txt" at -30, 0, 3 rotatey 1.5708
+add_object lp7 from "models/fence_simple.txt" at -30, 0, 9 rotatey 1.5708
+add_object lp8 from "models/fence_simple.txt" at -30, 0, 15 rotatey 1.5708
+add_object lp9 from "models/fence_simple.txt" at -30, 0, 21 rotatey 1.5708
+add_object lp10 from "models/fence_simple.txt" at -30, 0, 27 rotatey 1.5708
+// Right (x = 30, rotated 90)
+add_object rp1 from "models/fence_simple.txt" at 30, 0, -27 rotatey 1.5708
+add_object rp2 from "models/fence_simple.txt" at 30, 0, -21 rotatey 1.5708
+add_object rp3 from "models/fence_simple.txt" at 30, 0, -15 rotatey 1.5708
+add_object rp4 from "models/fence_simple.txt" at 30, 0, -9 rotatey 1.5708
+add_object rp5 from "models/fence_simple.txt" at 30, 0, -3 rotatey 1.5708
+add_object rp6 from "models/fence_simple.txt" at 30, 0, 3 rotatey 1.5708
+add_object rp7 from "models/fence_simple.txt" at 30, 0, 9 rotatey 1.5708
+add_object rp8 from "models/fence_simple.txt" at 30, 0, 15 rotatey 1.5708
+add_object rp9 from "models/fence_simple.txt" at 30, 0, 21 rotatey 1.5708
+add_object rp10 from "models/fence_simple.txt" at 30, 0, 27 rotatey 1.5708
+
+// Fence colliders (perimeter walls)
+add_collider 0, 1, -29.5 size 30, 5, 0.5
+add_collider 0, 1, 29.5 size 30, 5, 0.5
+add_collider -29.5, 1, 0 size 0.5, 5, 30
+add_collider 29.5, 1, 0 size 0.5, 5, 30
+
+// Blasters (on ground for pickup)
+let pistol = create_model from "models/blaster_pistol.txt" at -1, 0.5, -5 rotatey 0.3 scale 2
+let rifle = create_model from "models/blaster_rifle.txt" at 1, 0.5, -5 rotatey -0.3 scale 2
+let shotgun = create_model from "models/blaster_shotgun.txt" at 0, 0.5, -5.5 rotatey 0 scale 2
+
+// Skulls
+let spawn_one = 1
+let spawn_timer = 20
+let skull1 = 0
+let skull2 = 0
+let skull1_hp = 300
+let skull2_hp = 300
+let skull_max_hp = 300
+let skull_hit_timer = 0
+let skull_speed = 3
+let skull_damage = 10
+let skull_attack_timer = 0
+let skull1_alive = 0
+let skull2_alive = 0
+let skull1_shoot_timer = 0
+let skull2_shoot_timer = 0
+
+// Red Square enemies (up to 6)
+let rs_count = 0
+let rs_speed = 4
+let rs_damage = 15
+let rs_spawn_timer = 10
+let rs1 = 0
+let rs2 = 0
+let rs3 = 0
+let rs4 = 0
+let rs5 = 0
+let rs6 = 0
+let rs1_hp = 0
+let rs2_hp = 0
+let rs3_hp = 0
+let rs4_hp = 0
+let rs5_hp = 0
+let rs6_hp = 0
+let rs1_alive = 0
+let rs2_alive = 0
+let rs3_alive = 0
+let rs4_alive = 0
+let rs5_alive = 0
+let rs6_alive = 0
+let rs1_atk = 0
+let rs2_atk = 0
+let rs3_atk = 0
+let rs4_atk = 0
+let rs5_atk = 0
+let rs6_atk = 0
+
+// Red Square particles
+let rp1 = 0
+let rp2 = 0
+let rp3 = 0
+let rp4 = 0
+let rp5 = 0
+let rp6 = 0
+let rp7 = 0
+let rp8 = 0
+let rpv1x = 0
+let rpv1y = 0
+let rpv1z = 0
+let rpv2x = 0
+let rpv2y = 0
+let rpv2z = 0
+let rpv3x = 0
+let rpv3y = 0
+let rpv3z = 0
+let rpv4x = 0
+let rpv4y = 0
+let rpv4z = 0
+let rpv5x = 0
+let rpv5y = 0
+let rpv5z = 0
+let rpv6x = 0
+let rpv6y = 0
+let rpv6z = 0
+let rpv7x = 0
+let rpv7y = 0
+let rpv7z = 0
+let rpv8x = 0
+let rpv8y = 0
+let rpv8z = 0
+let rp_alive = 0
+let rp_timer = 0
+
+// Red Square dash system
+let rs_idle_timer = 0
+let rs_dashing = 0
+let rs_idle_limit = 2
+
+// Bullets
+let bullet1 = 0
+let bullet2 = 0
+let bullet1_active = 0
+let bullet2_active = 0
+let bullet1_vx = 0
+let bullet1_vz = 0
+let bullet2_vx = 0
+let bullet2_vz = 0
+let bullet_speed = 15
+
+// Particles
+let p1 = 0
+let p2 = 0
+let p3 = 0
+let p4 = 0
+let p5 = 0
+let p6 = 0
+let p7 = 0
+let p8 = 0
+let pv1x = 0
+let pv1y = 0
+let pv1z = 0
+let pv2x = 0
+let pv2y = 0
+let pv2z = 0
+let pv3x = 0
+let pv3y = 0
+let pv3z = 0
+let pv4x = 0
+let pv4y = 0
+let pv4z = 0
+let pv5x = 0
+let pv5y = 0
+let pv5z = 0
+let pv6x = 0
+let pv6y = 0
+let pv6z = 0
+let pv7x = 0
+let pv7y = 0
+let pv7z = 0
+let pv8x = 0
+let pv8y = 0
+let pv8z = 0
+let particles_alive = 0
+let particle_timer = 0
+
+// Music
+//play_sound bg from "assets/temp/tmp.mp3" loop
+
+// Import gameplay scripts
+import("game/scripts/ammo_chests.mio")
+
+// === WEAPON SYSTEM ===
+let currentWeapon = 0
+let weaponName = "none"
+let hasPistol = 0
+let hasRifle = 0
+let hasShotgun = 0
+let shootAnim = 0
+let muzzleFlash = 0
+let pickupMessage = ""
+let pickupTimer = 0
+let isReloading = 0
+let reloadTimer = 0
+let reloadTime = 1.5
+let pistolAmmo = 12
+let pistolReserve = 36
+let pistolMagSize = 12
+let rifleAmmo = 30
+let rifleReserve = 90
+let rifleMagSize = 30
+let shotgunAmmo = 8
+let shotgunReserve = 24
+let shotgunMagSize = 8
+
+// HUD
+let game_title = "test"
+let player_hp = 100
+let max_hp = 100
+let score = 0
+let sprintTimer = 0
+
+on_draw
+    let sprinting = camera.sprinting
+    let stamina = camera.stamina
+    let maxStamina = camera.maxStamina
+    if sprinting == true then
+        let sprintTimer = sprintTimer + 0.016
+    else
+        let sprintTimer = 0
+    end
+
+    // === Muzzle flash ===
+    if muzzleFlash > 0 then
+        let muzzleFlash = muzzleFlash - 0.016
+        let fa = muzzleFlash * 8
+        draw_circle 228, 165, 12 * fa, 1.0, 0.8, 0.2, fa * 0.9
+        draw_circle 228, 165, 6 * fa, 1.0, 1.0, 0.6, fa
+    end
+
+    // === Weapon display (classic FPS, bottom right) ===
+    if isReloading == 0 then
+        let wx = 255
+        let wy = 180
+        let ws = 4.0
+        let wr = 0
+        if shootAnim > 0 then
+            let wr = cos(shootAnim * 30) * 0.15
+            let wy = wy + sin(shootAnim * 40) * 8
+        end
+        if currentWeapon == 1 then
+            draw_model "models/blaster_pistol.txt", wx, wy, ws, -0.15 + wr, -0.35
+        end
+        if currentWeapon == 2 then
+            draw_model "models/blaster_rifle.txt", wx, wy, ws, -0.15 + wr, -0.35
+        end
+        if currentWeapon == 3 then
+            draw_model "models/blaster_shotgun.txt", wx, wy, ws, -0.15 + wr, -0.35
+        end
+    end
+
+    // === Weapon slots indicator ===
+    if isReloading == 0 then
+        if hasPistol == 1 then
+            draw_rect 200, 200, 20, 8, 0.3, 0.3, 0.3, 0.8
+        end
+        if hasRifle == 1 then
+            draw_rect 225, 200, 20, 8, 0.3, 0.3, 0.3, 0.8
+        end
+        if hasShotgun == 1 then
+            draw_rect 250, 200, 20, 8, 0.3, 0.3, 0.3, 0.8
+        end
+        if currentWeapon == 1 then
+            draw_rect 200, 200, 20, 8, 0.2, 0.6, 1.0, 0.9
+        end
+        if currentWeapon == 2 then
+            draw_rect 225, 200, 20, 8, 0.2, 0.6, 1.0, 0.9
+        end
+        if currentWeapon == 3 then
+            draw_rect 250, 200, 20, 8, 0.2, 0.6, 1.0, 0.9
+        end
+        if currentWeapon > 0 then
+            draw_text weaponName, 255, 212, 6, 0.5, 0.5, 0.5, 0.7, center
+        end
+    end
+    // === Reload indicator ===
+    if isReloading == 1 then
+        let rpct = reloadTimer / reloadTime
+        let rw = rpct * 50
+        draw_rect 200, 196, 110, 14, 0.05, 0.05, 0.1, 0.85
+        draw_rect 201, 198, rw, 10, 0.2, 0.7, 1.0, 0.95
+        draw_text "RELOAD", 255, 196, 8, 0.2, 0.7, 1.0, 0.9, center
+    end
+
+    // === Crosshair ===
+    draw_circle 160, 120, 2, 1, 0.2, 0.2, 0.9
+    draw_circle 160, 120, 1, 1, 1, 1, 1
+
+    // === Bottom panel ===
+    draw_rect 0, 226, 320, 14, 0.08, 0.02, 0.02, 0.92
+    draw_line 0, 226, 320, 226, 0.7, 0.1, 0.1, 0.8, 1
+
+    // === HP ===
+    let hp_pct = player_hp / max_hp
+    let hp_shake = 0
+    if hp_pct < 0.3 then
+        let hp_shake = sin(sprintTimer * 30) * 1
+    end
+    draw_text "" + player_hp, 18 + hp_shake, 227, 8, 0.9, 0.1, 0.1, 1, left
+    draw_rect 40, 229, 50, 4, 0.2, 0.05, 0.05, 0.9
+    let bar_w = hp_pct * 48
+    draw_rect 41, 230, bar_w, 2, 0.9, 0.1, 0.1, 1
+    if hp_pct < 0.3 then
+        let flash = sin(sprintTimer * 12) * 0.5 + 0.5
+        draw_rect 41, 230, bar_w, 2, 1, 0.2 * flash, 0.1, 1
+    end
+
+    // === Stamina ===
+    draw_rect 96, 229, 50, 4, 0.1, 0.1, 0.2, 0.9
+    let st_pct = stamina / maxStamina
+    let st_w = st_pct * 48
+    draw_rect 97, 230, st_w, 2, 0.2, 0.5, 1.0, 0.95
+    if sprinting == true then
+        draw_rect 97, 230, st_w, 2, 0.3, 0.8, 1.0, 1
+    end
+
+    // === Style ===
+    let style_rank = "D"
+    let style_r = 0.5
+    let style_g = 0.5
+    let style_b = 0.5
+    if score >= 5 then
+        let style_rank = "C"
+        let style_r = 0.2
+        let style_g = 0.8
+        let style_b = 0.2
+    end
+    if score >= 15 then
+        let style_rank = "B"
+        let style_r = 0.2
+        let style_g = 0.4
+        let style_b = 1.0
+    end
+    if score >= 30 then
+        let style_rank = "A"
+        let style_r = 0.9
+        let style_g = 0.8
+        let style_b = 0.1
+    end
+    if score >= 50 then
+        let style_rank = "S"
+        let style_r = 1.0
+        let style_g = 0.3
+        let style_b = 0.1
+    end
+    if score >= 100 then
+        let style_rank = "SSS"
+        let style_r = 1.0
+        let style_g = 0.0
+        let style_b = 0.5
+    end
+    draw_text style_rank, 170, 227, 9, style_r, style_g, style_b, 1, left
+    draw_text "" + score, 190, 228, 6, 0.7, 0.15, 0.1, 0.9, left
+
+    // === Slam ===
+    if sprinting == true then
+        let sa = 0.7 + sin(sprintTimer * 15) * 0.3
+        draw_text "SLAM", 290, 227, 8, 1.0, 0.3, 0.1, sa, right
+    end
+
+    // === Weapon name ===
+    if currentWeapon > 0 and isReloading == 0 then
+        draw_text weaponName, 220, 218, 6, 0.5, 0.5, 0.5, 0.7, left
+    end
+
+    // === Ammo display (bottom right) ===
+    if currentWeapon > 0 and isReloading == 0 then
+        let _ammo = 0
+        let _reserve = 0
+        let _magSize = 0
+        if currentWeapon == 1 then
+            let _ammo = pistolAmmo
+            let _reserve = pistolReserve
+            let _magSize = pistolMagSize
+        end
+        if currentWeapon == 2 then
+            let _ammo = rifleAmmo
+            let _reserve = rifleReserve
+            let _magSize = rifleMagSize
+        end
+        if currentWeapon == 3 then
+            let _ammo = shotgunAmmo
+            let _reserve = shotgunReserve
+            let _magSize = shotgunMagSize
+        end
+        // magazine - big number
+        let _ar = 1.0
+        let _ag = 1.0
+        let _ab = 1.0
+        if _ammo <= 0 then
+            let _ar = 1.0
+            let _ag = 0.15
+            let _ab = 0.1
+        else
+            if _ammo <= _magSize / 4 then
+                let _ar = 1.0
+                let _ag = 0.7
+                let _ab = 0.1
+            end
+        end
+        draw_text "" + _ammo, 275, 226, 10, _ar, _ag, _ab, 1, right
+        // reserve - smaller, gray
+        draw_text "/ " + _reserve, 310, 229, 7, 0.55, 0.55, 0.6, 0.85, right
+    end
+
+    // === Title ===
+    draw_text game_title, 161, 3, 10, 0, 0, 0, 0.6, center
+    draw_text game_title, 160, 2, 10, 0.9, 0.1, 0.1, 1, center
+
+    // === Pickup message ===
+    if pickupTimer > 0 then
+        let pickupTimer = pickupTimer - 0.016
+        let pa = min(pickupTimer, 1)
+        draw_text pickupMessage, 160, 100, 10, 1.0, 0.9, 0.3, pa, center
+    end
+end
+
+// Update camera each frame
+let _time = 0
+on_update
+    let _time = _time + 0.016
+    camera_collide
+
+    // shooting animation decay
+    if shootAnim > 0 then
+        let shootAnim = shootAnim - 0.016
+    end
+
+    // skull hit timer
+    if skull_hit_timer > 0 then
+        let skull_hit_timer = skull_hit_timer - 0.016
+    end
+
+    // skull shoot cooldowns
+    if skull1_shoot_timer > 0 then
+        let skull1_shoot_timer = skull1_shoot_timer - 0.016
+    end
+    if skull2_shoot_timer > 0 then
+        let skull2_shoot_timer = skull2_shoot_timer - 0.016
+    end
+
+    // endless spawn: 1, 2, 1, 2...
+    if skull1_alive == 0 and skull2_alive == 0 then
+        let spawn_timer = spawn_timer - 0.016
+        if spawn_timer <= 0 then
+            if spawn_one == 1 then
+                let skull1 = create_model from "models/deco_skull.txt" at -5, 0, -5 scale 5 rotatey 0.5
+                let skull1_hp = 300
+                let skull1_alive = 1
+                let skull2_alive = 0
+                let skull1_shoot_timer = 0
+                let bullet1_active = 0
+                let spawn_one = 0
+            else
+                let skull1 = create_model from "models/deco_skull.txt" at -5, 0, -5 scale 5 rotatey 0.5
+                let skull2 = create_model from "models/deco_skull.txt" at 5, 0, -5 scale 5 rotatey 0.5
+                let skull1_hp = 300
+                let skull2_hp = 300
+                let skull1_alive = 1
+                let skull2_alive = 1
+                let skull1_shoot_timer = 0
+                let skull2_shoot_timer = 0
+                let bullet1_active = 0
+                let bullet2_active = 0
+                let spawn_one = 1
+            end
+            let spawn_timer = 5
+        end
+    end
+
+    // Red Square spawn (4 at once, every 10 seconds)
+    let _rs_alive = rs1_alive + rs2_alive + rs3_alive + rs4_alive
+    if _rs_alive == 0 then
+        let rs_spawn_timer = rs_spawn_timer - 0.016
+        if rs_spawn_timer <= 0 then
+            let rs1 = create_model from "models/deco_red_square.txt" at -8, 0.2, -8 scale 4
+            let rs1_hp = 200
+            let rs1_alive = 1
+            let rs1_atk = 0
+            let rs2 = create_model from "models/deco_red_square.txt" at 8, 0.2, -8 scale 4
+            let rs2_hp = 200
+            let rs2_alive = 1
+            let rs2_atk = 0
+            let rs3 = create_model from "models/deco_red_square.txt" at -3, 0.2, -12 scale 4
+            let rs3_hp = 200
+            let rs3_alive = 1
+            let rs3_atk = 0
+            let rs4 = create_model from "models/deco_red_square.txt" at 3, 0.2, -12 scale 4
+            let rs4_hp = 200
+            let rs4_alive = 1
+            let rs4_atk = 0
+            let rs_spawn_timer = 10
+        end
+    end
+
+    // Red Square dash: activates when player stands on ground > 2 sec
+    if camera.onGround == true then
+        let rs_idle_timer = rs_idle_timer + 0.016
+    else
+        let rs_idle_timer = 0
+        let rs_dashing = 0
+    end
+
+    if rs_idle_timer >= rs_idle_limit and rs_dashing == 0 then
+        let rs_dashing = 1
+    end
+
+    if camera.onGround == false then
+        let rs_dashing = 0
+        let rs_idle_timer = 0
+    end
+
+    // Red Square AI: follow + face + melee attack
+    if rs1_alive == 1 then
+        let _dx = camera.x - rs1.x
+        let _dz = camera.z - rs1.z
+        let _sd = dist(rs1.x, rs1.y, rs1.z, camera.x, camera.y, camera.z)
+        if _sd > 0.1 then
+            set_rot rs1 angle_y atan2(_dx, -_dz)
+        end
+        if _sd > 2 then
+            let _mx = 0
+            let _mz = 0
+            if _sd > 0.1 then
+                let _mx = _dx / _sd
+                let _mz = _dz / _sd
+            end
+            if rs_dashing == 1 then
+                move rs1 by _mx * rs_speed * 3 * 0.016, 0, _mz * rs_speed * 3 * 0.016
+            else
+                move rs1 by _mx * rs_speed * 0.016, 0, _mz * rs_speed * 0.016
+            end
+        end
+        if _sd < 2.5 then
+            let rs1_atk = rs1_atk - 0.016
+            if rs1_atk <= 0 then
+                let player_hp = player_hp - rs_damage
+                let rs1_atk = 0.8
+            end
+        end
+    end
+    if rs2_alive == 1 then
+        let _dx = camera.x - rs2.x
+        let _dz = camera.z - rs2.z
+        let _sd = dist(rs2.x, rs2.y, rs2.z, camera.x, camera.y, camera.z)
+        if _sd > 0.1 then
+            set_rot rs2 angle_y atan2(_dx, -_dz)
+        end
+        if _sd > 2 then
+            let _mx = 0
+            let _mz = 0
+            if _sd > 0.1 then
+                let _mx = _dx / _sd
+                let _mz = _dz / _sd
+            end
+            if rs_dashing == 1 then
+                move rs2 by _mx * rs_speed * 3 * 0.016, 0, _mz * rs_speed * 3 * 0.016
+            else
+                move rs2 by _mx * rs_speed * 0.016, 0, _mz * rs_speed * 0.016
+            end
+        end
+        if _sd < 2.5 then
+            let rs2_atk = rs2_atk - 0.016
+            if rs2_atk <= 0 then
+                let player_hp = player_hp - rs_damage
+                let rs2_atk = 0.8
+            end
+        end
+    end
+    if rs3_alive == 1 then
+        let _dx = camera.x - rs3.x
+        let _dz = camera.z - rs3.z
+        let _sd = dist(rs3.x, rs3.y, rs3.z, camera.x, camera.y, camera.z)
+        if _sd > 0.1 then
+            set_rot rs3 angle_y atan2(_dx, -_dz)
+        end
+        if _sd > 2 then
+            let _mx = 0
+            let _mz = 0
+            if _sd > 0.1 then
+                let _mx = _dx / _sd
+                let _mz = _dz / _sd
+            end
+            if rs_dashing == 1 then
+                move rs3 by _mx * rs_speed * 3 * 0.016, 0, _mz * rs_speed * 3 * 0.016
+            else
+                move rs3 by _mx * rs_speed * 0.016, 0, _mz * rs_speed * 0.016
+            end
+        end
+        if _sd < 2.5 then
+            let rs3_atk = rs3_atk - 0.016
+            if rs3_atk <= 0 then
+                let player_hp = player_hp - rs_damage
+                let rs3_atk = 0.8
+            end
+        end
+    end
+    if rs4_alive == 1 then
+        let _dx = camera.x - rs4.x
+        let _dz = camera.z - rs4.z
+        let _sd = dist(rs4.x, rs4.y, rs4.z, camera.x, camera.y, camera.z)
+        if _sd > 0.1 then
+            set_rot rs4 angle_y atan2(_dx, -_dz)
+        end
+        if _sd > 2 then
+            let _mx = 0
+            let _mz = 0
+            if _sd > 0.1 then
+                let _mx = _dx / _sd
+                let _mz = _dz / _sd
+            end
+            if rs_dashing == 1 then
+                move rs4 by _mx * rs_speed * 3 * 0.016, 0, _mz * rs_speed * 3 * 0.016
+            else
+                move rs4 by _mx * rs_speed * 0.016, 0, _mz * rs_speed * 0.016
+            end
+        end
+        if _sd < 2.5 then
+            let rs4_atk = rs4_atk - 0.016
+            if rs4_atk <= 0 then
+                let player_hp = player_hp - rs_damage
+                let rs4_atk = 0.8
+            end
+        end
+    end
+
+    // Red Square deaths + particles (always destroy old particles first)
+    if rs1_hp <= 0 and rs1_alive == 1 then
+        let rs1_alive = 0
+        let _rx = rs1.x
+        let _ry = rs1.y
+        let _rz = rs1.z
+        destroy rs1
+        let score = score + 5
+        if rp_alive == 1 then
+            destroy rp1
+            destroy rp2
+            destroy rp3
+            destroy rp4
+            destroy rp5
+            destroy rp6
+            destroy rp7
+            destroy rp8
+        end
+        let rp1 = create_model from "models/deco_red_square.txt" at _rx, _ry, _rz scale 1
+        let rp2 = create_model from "models/deco_red_square.txt" at _rx, _ry, _rz scale 1
+        let rp3 = create_model from "models/deco_red_square.txt" at _rx, _ry, _rz scale 1
+        let rp4 = create_model from "models/deco_red_square.txt" at _rx, _ry, _rz scale 1
+        let rp5 = create_model from "models/deco_red_square.txt" at _rx, _ry, _rz scale 1
+        let rp6 = create_model from "models/deco_red_square.txt" at _rx, _ry, _rz scale 1
+        let rp7 = create_model from "models/deco_red_square.txt" at _rx, _ry, _rz scale 1
+        let rp8 = create_model from "models/deco_red_square.txt" at _rx, _ry, _rz scale 1
+        let rpv1x = 8
+        let rpv1y = 12
+        let rpv1z = 8
+        let rpv2x = -8
+        let rpv2y = 10
+        let rpv2z = 8
+        let rpv3x = 8
+        let rpv3y = 14
+        let rpv3z = -8
+        let rpv4x = -8
+        let rpv4y = 11
+        let rpv4z = -8
+        let rpv5x = 10
+        let rpv5y = 16
+        let rpv5z = 0
+        let rpv6x = -10
+        let rpv6y = 13
+        let rpv6z = 0
+        let rpv7x = 0
+        let rpv7y = 15
+        let rpv7z = 10
+        let rpv8x = 0
+        let rpv8y = 12
+        let rpv8z = -10
+        let rp_alive = 1
+        let rp_timer = 0
+    end
+    if rs2_hp <= 0 and rs2_alive == 1 then
+        let rs2_alive = 0
+        let _rx = rs2.x
+        let _ry = rs2.y
+        let _rz = rs2.z
+        destroy rs2
+        let score = score + 5
+        if rp_alive == 1 then
+            destroy rp1
+            destroy rp2
+            destroy rp3
+            destroy rp4
+            destroy rp5
+            destroy rp6
+            destroy rp7
+            destroy rp8
+        end
+        let rp1 = create_model from "models/deco_red_square.txt" at _rx, _ry, _rz scale 1
+        let rp2 = create_model from "models/deco_red_square.txt" at _rx, _ry, _rz scale 1
+        let rp3 = create_model from "models/deco_red_square.txt" at _rx, _ry, _rz scale 1
+        let rp4 = create_model from "models/deco_red_square.txt" at _rx, _ry, _rz scale 1
+        let rp5 = create_model from "models/deco_red_square.txt" at _rx, _ry, _rz scale 1
+        let rp6 = create_model from "models/deco_red_square.txt" at _rx, _ry, _rz scale 1
+        let rp7 = create_model from "models/deco_red_square.txt" at _rx, _ry, _rz scale 1
+        let rp8 = create_model from "models/deco_red_square.txt" at _rx, _ry, _rz scale 1
+        let rpv1x = 8
+        let rpv1y = 12
+        let rpv1z = 8
+        let rpv2x = -8
+        let rpv2y = 10
+        let rpv2z = 8
+        let rpv3x = 8
+        let rpv3y = 14
+        let rpv3z = -8
+        let rpv4x = -8
+        let rpv4y = 11
+        let rpv4z = -8
+        let rpv5x = 10
+        let rpv5y = 16
+        let rpv5z = 0
+        let rpv6x = -10
+        let rpv6y = 13
+        let rpv6z = 0
+        let rpv7x = 0
+        let rpv7y = 15
+        let rpv7z = 10
+        let rpv8x = 0
+        let rpv8y = 12
+        let rpv8z = -10
+        let rp_alive = 1
+        let rp_timer = 0
+    end
+    if rs3_hp <= 0 and rs3_alive == 1 then
+        let rs3_alive = 0
+        let _rx = rs3.x
+        let _ry = rs3.y
+        let _rz = rs3.z
+        destroy rs3
+        let score = score + 5
+        if rp_alive == 1 then
+            destroy rp1
+            destroy rp2
+            destroy rp3
+            destroy rp4
+            destroy rp5
+            destroy rp6
+            destroy rp7
+            destroy rp8
+        end
+        let rp1 = create_model from "models/deco_red_square.txt" at _rx, _ry, _rz scale 1
+        let rp2 = create_model from "models/deco_red_square.txt" at _rx, _ry, _rz scale 1
+        let rp3 = create_model from "models/deco_red_square.txt" at _rx, _ry, _rz scale 1
+        let rp4 = create_model from "models/deco_red_square.txt" at _rx, _ry, _rz scale 1
+        let rp5 = create_model from "models/deco_red_square.txt" at _rx, _ry, _rz scale 1
+        let rp6 = create_model from "models/deco_red_square.txt" at _rx, _ry, _rz scale 1
+        let rp7 = create_model from "models/deco_red_square.txt" at _rx, _ry, _rz scale 1
+        let rp8 = create_model from "models/deco_red_square.txt" at _rx, _ry, _rz scale 1
+        let rpv1x = 8
+        let rpv1y = 12
+        let rpv1z = 8
+        let rpv2x = -8
+        let rpv2y = 10
+        let rpv2z = 8
+        let rpv3x = 8
+        let rpv3y = 14
+        let rpv3z = -8
+        let rpv4x = -8
+        let rpv4y = 11
+        let rpv4z = -8
+        let rpv5x = 10
+        let rpv5y = 16
+        let rpv5z = 0
+        let rpv6x = -10
+        let rpv6y = 13
+        let rpv6z = 0
+        let rpv7x = 0
+        let rpv7y = 15
+        let rpv7z = 10
+        let rpv8x = 0
+        let rpv8y = 12
+        let rpv8z = -10
+        let rp_alive = 1
+        let rp_timer = 0
+    end
+    if rs4_hp <= 0 and rs4_alive == 1 then
+        let rs4_alive = 0
+        let _rx = rs4.x
+        let _ry = rs4.y
+        let _rz = rs4.z
+        destroy rs4
+        let score = score + 5
+        if rp_alive == 1 then
+            destroy rp1
+            destroy rp2
+            destroy rp3
+            destroy rp4
+            destroy rp5
+            destroy rp6
+            destroy rp7
+            destroy rp8
+        end
+        let rp1 = create_model from "models/deco_red_square.txt" at _rx, _ry, _rz scale 1
+        let rp2 = create_model from "models/deco_red_square.txt" at _rx, _ry, _rz scale 1
+        let rp3 = create_model from "models/deco_red_square.txt" at _rx, _ry, _rz scale 1
+        let rp4 = create_model from "models/deco_red_square.txt" at _rx, _ry, _rz scale 1
+        let rp5 = create_model from "models/deco_red_square.txt" at _rx, _ry, _rz scale 1
+        let rp6 = create_model from "models/deco_red_square.txt" at _rx, _ry, _rz scale 1
+        let rp7 = create_model from "models/deco_red_square.txt" at _rx, _ry, _rz scale 1
+        let rp8 = create_model from "models/deco_red_square.txt" at _rx, _ry, _rz scale 1
+        let rpv1x = 8
+        let rpv1y = 12
+        let rpv1z = 8
+        let rpv2x = -8
+        let rpv2y = 10
+        let rpv2z = 8
+        let rpv3x = 8
+        let rpv3y = 14
+        let rpv3z = -8
+        let rpv4x = -8
+        let rpv4y = 11
+        let rpv4z = -8
+        let rpv5x = 10
+        let rpv5y = 16
+        let rpv5z = 0
+        let rpv6x = -10
+        let rpv6y = 13
+        let rpv6z = 0
+        let rpv7x = 0
+        let rpv7y = 15
+        let rpv7z = 10
+        let rpv8x = 0
+        let rpv8y = 12
+        let rpv8z = -10
+        let rp_alive = 1
+        let rp_timer = 0
+    end
+
+    // skull1 AI: follow + face + shoot
+    if skull1_alive == 1 then
+        let _dx1 = camera.x - skull1.x
+        let _dz1 = camera.z - skull1.z
+        let _sd1 = dist(skull1.x, skull1.y, skull1.z, camera.x, camera.y, camera.z)
+        // face player
+        if _sd1 > 0.1 then
+            let _angle1 = atan2(_dx1, -_dz1)
+            set_rot skull1 angle_y _angle1
+        end
+        // follow player (stop at close range)
+        if _sd1 > 5 then
+            move skull1 towards camera speed skull_speed
+        end
+        // melee attack
+        if _sd1 < 2.5 then
+            let skull_attack_timer = skull_attack_timer - 0.016
+            if skull_attack_timer <= 0 then
+                let player_hp = player_hp - skull_damage
+                let skull_attack_timer = 1.0
+            end
+        end
+        // ranged attack: spawn visible bullet
+        if skull1_shoot_timer <= 0 and _sd1 > 3 and bullet1_active == 0 then
+            let bullet1 = create_model from "models/deco_skull.txt" at skull1.x, 1, skull1.z scale 1
+            let bullet1_vx = _dx1 / _sd1 * bullet_speed
+            let bullet1_vz = _dz1 / _sd1 * bullet_speed
+            let bullet1_active = 1
+            let skull1_shoot_timer = 0.8
+        end
+    end
+
+    // skull2 AI: follow + face + shoot
+    if skull2_alive == 1 then
+        let _dx2 = camera.x - skull2.x
+        let _dz2 = camera.z - skull2.z
+        let _sd2 = dist(skull2.x, skull2.y, skull2.z, camera.x, camera.y, camera.z)
+        // face player
+        if _sd2 > 0.1 then
+            let _angle2 = atan2(_dx2, -_dz2)
+            set_rot skull2 angle_y _angle2
+        end
+        // follow player (stop at close range)
+        if _sd2 > 5 then
+            move skull2 towards camera speed skull_speed
+        end
+        // melee attack
+        if _sd2 < 2.5 then
+            let skull_attack_timer = skull_attack_timer - 0.016
+            if skull_attack_timer <= 0 then
+                let player_hp = player_hp - skull_damage
+                let skull_attack_timer = 1.0
+            end
+        end
+        // ranged attack: spawn visible bullet
+        if skull2_shoot_timer <= 0 and _sd2 > 3 and bullet2_active == 0 then
+            let bullet2 = create_model from "models/deco_skull.txt" at skull2.x, 1, skull2.z scale 1
+            let bullet2_vx = _dx2 / _sd2 * bullet_speed
+            let bullet2_vz = _dz2 / _sd2 * bullet_speed
+            let bullet2_active = 1
+            let skull2_shoot_timer = 0.8
+        end
+    end
+
+    // bullet1 movement + hit check
+    if bullet1_active == 1 then
+        let _bdt = 0.016
+        move bullet1 by bullet1_vx * _bdt, 0, bullet1_vz * _bdt
+        let _bd1 = dist(bullet1.x, bullet1.y, bullet1.z, camera.x, camera.y, camera.z)
+        if _bd1 < 1.5 then
+            let player_hp = player_hp - 5
+            destroy bullet1
+            let bullet1_active = 0
+        else
+            if _bd1 > 40 then
+                destroy bullet1
+                let bullet1_active = 0
+            end
+        end
+    end
+
+    // bullet2 movement + hit check
+    if bullet2_active == 1 then
+        let _bdt = 0.016
+        move bullet2 by bullet2_vx * _bdt, 0, bullet2_vz * _bdt
+        let _bd2 = dist(bullet2.x, bullet2.y, bullet2.z, camera.x, camera.y, camera.z)
+        if _bd2 < 1.5 then
+            let player_hp = player_hp - 5
+            destroy bullet2
+            let bullet2_active = 0
+        else
+            if _bd2 > 40 then
+                destroy bullet2
+                let bullet2_active = 0
+            end
+        end
+    end
+
+    // skull1 death + particles
+    if skull1_hp <= 0 and skull1_alive == 1 then
+        let skull1_alive = 0
+        let _skx = skull1.x
+        let _sky = skull1.y
+        let _skz = skull1.z
+        destroy skull1
+        let score = score + 10
+        if bullet1_active == 1 then
+            destroy bullet1
+            let bullet1_active = 0
+        end
+        let p1 = create_model from "models/deco_skull.txt" at _skx, _sky, _skz scale 1
+        let p2 = create_model from "models/deco_skull.txt" at _skx, _sky, _skz scale 1
+        let p3 = create_model from "models/deco_skull.txt" at _skx, _sky, _skz scale 1
+        let p4 = create_model from "models/deco_skull.txt" at _skx, _sky, _skz scale 1
+        let p5 = create_model from "models/deco_skull.txt" at _skx, _sky, _skz scale 1
+        let p6 = create_model from "models/deco_skull.txt" at _skx, _sky, _skz scale 1
+        let p7 = create_model from "models/deco_skull.txt" at _skx, _sky, _skz scale 1
+        let p8 = create_model from "models/deco_skull.txt" at _skx, _sky, _skz scale 1
+        let pv1x = 8
+        let pv1y = 12
+        let pv1z = 8
+        let pv2x = -8
+        let pv2y = 10
+        let pv2z = 8
+        let pv3x = 8
+        let pv3y = 14
+        let pv3z = -8
+        let pv4x = -8
+        let pv4y = 11
+        let pv4z = -8
+        let pv5x = 10
+        let pv5y = 16
+        let pv5z = 0
+        let pv6x = -10
+        let pv6y = 13
+        let pv6z = 0
+        let pv7x = 0
+        let pv7y = 15
+        let pv7z = 10
+        let pv8x = 0
+        let pv8y = 12
+        let pv8z = -10
+        let particles_alive = 1
+    end
+
+    // skull2 death + particles
+    if skull2_hp <= 0 and skull2_alive == 1 then
+        let skull2_alive = 0
+        let _skx = skull2.x
+        let _sky = skull2.y
+        let _skz = skull2.z
+        destroy skull2
+        let score = score + 10
+        if bullet2_active == 1 then
+            destroy bullet2
+            let bullet2_active = 0
+        end
+        let p1 = create_model from "models/deco_skull.txt" at _skx, _sky, _skz scale 1
+        let p2 = create_model from "models/deco_skull.txt" at _skx, _sky, _skz scale 1
+        let p3 = create_model from "models/deco_skull.txt" at _skx, _sky, _skz scale 1
+        let p4 = create_model from "models/deco_skull.txt" at _skx, _sky, _skz scale 1
+        let p5 = create_model from "models/deco_skull.txt" at _skx, _sky, _skz scale 1
+        let p6 = create_model from "models/deco_skull.txt" at _skx, _sky, _skz scale 1
+        let p7 = create_model from "models/deco_skull.txt" at _skx, _sky, _skz scale 1
+        let p8 = create_model from "models/deco_skull.txt" at _skx, _sky, _skz scale 1
+        let pv1x = 8
+        let pv1y = 12
+        let pv1z = 8
+        let pv2x = -8
+        let pv2y = 10
+        let pv2z = 8
+        let pv3x = 8
+        let pv3y = 14
+        let pv3z = -8
+        let pv4x = -8
+        let pv4y = 11
+        let pv4z = -8
+        let pv5x = 10
+        let pv5y = 16
+        let pv5z = 0
+        let pv6x = -10
+        let pv6y = 13
+        let pv6z = 0
+        let pv7x = 0
+        let pv7y = 15
+        let pv7z = 10
+        let pv8x = 0
+        let pv8y = 12
+        let pv8z = -10
+        let particles_alive = 1
+    end
+
+    // update particles
+    if particles_alive == 1 then
+        let _pd = 0.016
+        let particle_timer = particle_timer + _pd
+        move p1 by pv1x * _pd, pv1y * _pd, pv1z * _pd
+        move p2 by pv2x * _pd, pv2y * _pd, pv2z * _pd
+        move p3 by pv3x * _pd, pv3y * _pd, pv3z * _pd
+        move p4 by pv4x * _pd, pv4y * _pd, pv4z * _pd
+        move p5 by pv5x * _pd, pv5y * _pd, pv5z * _pd
+        move p6 by pv6x * _pd, pv6y * _pd, pv6z * _pd
+        move p7 by pv7x * _pd, pv7y * _pd, pv7z * _pd
+        move p8 by pv8x * _pd, pv8y * _pd, pv8z * _pd
+        // gravity
+        let pv1y = pv1y - 20 * _pd
+        let pv2y = pv2y - 20 * _pd
+        let pv3y = pv3y - 20 * _pd
+        let pv4y = pv4y - 20 * _pd
+        let pv5y = pv5y - 20 * _pd
+        let pv6y = pv6y - 20 * _pd
+        let pv7y = pv7y - 20 * _pd
+        let pv8y = pv8y - 20 * _pd
+        // destroy after 2 seconds
+        if particle_timer >= 2 then
+            destroy p1
+            destroy p2
+            destroy p3
+            destroy p4
+            destroy p5
+            destroy p6
+            destroy p7
+            destroy p8
+            let particles_alive = 0
+            let particle_timer = 0
+        end
+    end
+
+    // Red Square particles update
+    if rp_alive == 1 then
+        let _rpd = 0.016
+        let rp_timer = rp_timer + _rpd
+        move rp1 by rpv1x * _rpd, rpv1y * _rpd, rpv1z * _rpd
+        move rp2 by rpv2x * _rpd, rpv2y * _rpd, rpv2z * _rpd
+        move rp3 by rpv3x * _rpd, rpv3y * _rpd, rpv3z * _rpd
+        move rp4 by rpv4x * _rpd, rpv4y * _rpd, rpv4z * _rpd
+        move rp5 by rpv5x * _rpd, rpv5y * _rpd, rpv5z * _rpd
+        move rp6 by rpv6x * _rpd, rpv6y * _rpd, rpv6z * _rpd
+        move rp7 by rpv7x * _rpd, rpv7y * _rpd, rpv7z * _rpd
+        move rp8 by rpv8x * _rpd, rpv8y * _rpd, rpv8z * _rpd
+        let rpv1y = rpv1y - 20 * _rpd
+        let rpv2y = rpv2y - 20 * _rpd
+        let rpv3y = rpv3y - 20 * _rpd
+        let rpv4y = rpv4y - 20 * _rpd
+        let rpv5y = rpv5y - 20 * _rpd
+        let rpv6y = rpv6y - 20 * _rpd
+        let rpv7y = rpv7y - 20 * _rpd
+        let rpv8y = rpv8y - 20 * _rpd
+        if rp_timer >= 2 then
+            destroy rp1
+            destroy rp2
+            destroy rp3
+            destroy rp4
+            destroy rp5
+            destroy rp6
+            destroy rp7
+            destroy rp8
+            let rp_alive = 0
+            let rp_timer = 0
+        end
+    end
+
+    // reload timer
+    if isReloading == 1 then
+        let reloadTimer = reloadTimer - 0.016
+        if reloadTimer <= 0 then
+            let isReloading = 0
+            let reloadTimer = 0
+            if currentWeapon == 1 then
+                let _need = pistolMagSize - pistolAmmo
+                if _need > pistolReserve then
+                    let _need = pistolReserve
+                end
+                let pistolAmmo = pistolAmmo + _need
+                let pistolReserve = pistolReserve - _need
+            end
+            if currentWeapon == 2 then
+                let _need = rifleMagSize - rifleAmmo
+                if _need > rifleReserve then
+                    let _need = rifleReserve
+                end
+                let rifleAmmo = rifleAmmo + _need
+                let rifleReserve = rifleReserve - _need
+            end
+            if currentWeapon == 3 then
+                let _need = shotgunMagSize - shotgunAmmo
+                if _need > shotgunReserve then
+                    let _need = shotgunReserve
+                end
+                let shotgunAmmo = shotgunAmmo + _need
+                let shotgunReserve = shotgunReserve - _need
+            end
+        end
+    end
+
+    // pickup check - pick up all weapons
+    let px = camera.x
+    let pz = camera.z
+    if hasPistol == 0 then
+        let d1 = dist(px, 0, pz, -1, 0.5, -5)
+        if d1 < 2 then
+            let hasPistol = 1
+            let currentWeapon = 1
+            let weaponName = "PISTOL"
+            let pickupMessage = "PICKUP: PISTOL"
+            let pickupTimer = 2
+            destroy pistol
+        end
+    end
+    if hasRifle == 0 then
+        let d2 = dist(px, 0, pz, 1, 0.5, -5)
+        if d2 < 2 then
+            let hasRifle = 1
+            let currentWeapon = 2
+            let weaponName = "RIFLE"
+            let pickupMessage = "PICKUP: RIFLE"
+            let pickupTimer = 2
+            destroy rifle
+        end
+    end
+    if hasShotgun == 0 then
+        let d3 = dist(px, 0, pz, 0, 0.5, -5.5)
+        if d3 < 2 then
+            let hasShotgun = 1
+            let currentWeapon = 3
+            let weaponName = "SHOTGUN"
+            let pickupMessage = "PICKUP: SHOTGUN"
+            let pickupTimer = 2
+            destroy shotgun
+        end
+    end
+
+    // blasters rotate on ground (only if not picked up)
+    if hasPistol == 0 then
+        set_rot angle_y pistol _time * 0.8
+        pistol.y = 0.5 + sin(_time * 1.5) * 0.05
+    end
+    if hasRifle == 0 then
+        set_rot angle_y rifle _time * 0.6
+        rifle.y = 0.5 + sin(_time * 1.8 + 1) * 0.05
+    end
+    if hasShotgun == 0 then
+        set_rot angle_y shotgun _time * 0.5
+        shotgun.y = 0.5 + sin(_time * 1.2 + 2) * 0.05
+    end
+end
+
+on_mouse
+    if _mousebutton == 1 and _mouseaction == "pressed" then
+        if currentWeapon > 0 and isReloading == 0 then
+            let _canShoot = 0
+            if currentWeapon == 1 and pistolAmmo > 0 then
+                let _canShoot = 1
+                let pistolAmmo = pistolAmmo - 1
+            end
+            if currentWeapon == 2 and rifleAmmo > 0 then
+                let _canShoot = 1
+                let rifleAmmo = rifleAmmo - 1
+            end
+            if currentWeapon == 3 and shotgunAmmo > 0 then
+                let _canShoot = 1
+                let shotgunAmmo = shotgunAmmo - 1
+            end
+                if _canShoot == 1 then
+                    let shootAnim = 0.2
+                    let muzzleFlash = 0.1
+                    // Hit detection on skulls
+                    if skull1_alive == 1 then
+                        check_hit skull1.x, skull1.y, skull1.z
+                        if _hitResult == 1 then
+                            let skull1_hp = skull1_hp - 25
+                            let skull_hit_timer = 0.3
+                        end
+                    end
+                    if skull2_alive == 1 then
+                        check_hit skull2.x, skull2.y, skull2.z
+                        if _hitResult == 1 then
+                            let skull2_hp = skull2_hp - 25
+                            let skull_hit_timer = 0.3
+                        end
+                    end
+                    // Hit detection on red squares
+                    if rs1_alive == 1 then
+                        check_hit rs1.x, rs1.y, rs1.z
+                        if _hitResult == 1 then
+                            let rs1_hp = rs1_hp - 25
+                        end
+                    end
+                    if rs2_alive == 1 then
+                        check_hit rs2.x, rs2.y, rs2.z
+                        if _hitResult == 1 then
+                            let rs2_hp = rs2_hp - 25
+                        end
+                    end
+                    if rs3_alive == 1 then
+                        check_hit rs3.x, rs3.y, rs3.z
+                        if _hitResult == 1 then
+                            let rs3_hp = rs3_hp - 25
+                        end
+                    end
+                    if rs4_alive == 1 then
+                        check_hit rs4.x, rs4.y, rs4.z
+                        if _hitResult == 1 then
+                            let rs4_hp = rs4_hp - 25
+                        end
+                    end
+                end
+        end
+    end
+end
+
+on_key "m"
+    mute
+end
+
+on_key "r"
+    if currentWeapon > 0 and isReloading == 0 then
+        let _canReload = 0
+        if currentWeapon == 1 and pistolAmmo < pistolMagSize and pistolReserve > 0 then
+            let _canReload = 1
+            let reloadTime = 1.0
+            let reloadTimer = 1.0
+        end
+        if currentWeapon == 2 and rifleAmmo < rifleMagSize and rifleReserve > 0 then
+            let _canReload = 1
+            let reloadTime = 2.0
+            let reloadTimer = 2.0
+        end
+        if currentWeapon == 3 and shotgunAmmo < shotgunMagSize and shotgunReserve > 0 then
+            let _canReload = 1
+            let reloadTime = 1.8
+            let reloadTimer = 1.8
+        end
+        if _canReload == 1 then
+            let isReloading = 1
+            let shootAnim = 0
+            let muzzleFlash = 0
+        end
+    end
+end
+
+on_key "1"
+    if hasPistol == 1 then
+        let currentWeapon = 1
+        let weaponName = "PISTOL"
+    end
+end
+
+on_key "2"
+    if hasRifle == 1 then
+        let currentWeapon = 2
+        let weaponName = "RIFLE"
+    end
+end
+
+on_key "3"
+    if hasShotgun == 1 then
+        let currentWeapon = 3
+        let weaponName = "SHOTGUN"
+    end
+end

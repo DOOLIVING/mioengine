@@ -1,0 +1,50 @@
+// Event system demo - timers, messages
+let msgCount = 0
+let maxMessages = 8
+
+let msgText = []
+let msgTime = []
+let msgActive = []
+
+say "Event system active"
+say "Keys: T=timer, H=hello"
+
+on_update
+    for i = 1 to msgCount
+        if msgActive[i] == 1 then
+            let msgTime[i] = msgTime[i] - 0.016
+            if msgTime[i] <= 0 then
+                let msgActive[i] = 0
+            end
+        end
+    end
+end
+
+on_draw
+    get_canvas_size => W, H
+    let drawY = 30
+    for i = 1 to msgCount
+        if msgActive[i] == 1 then
+            let alpha = msgTime[i]
+            if alpha > 1 then
+                let alpha = 1
+            end
+            draw_text msgText[i], W / 2, drawY, 8, 1, 1, 0.3, alpha, center
+            let drawY = drawY + 12
+        end
+    end
+end
+
+on_key "t"
+    say "Timer started (3s)..."
+end
+
+on_key "h"
+    let idx = msgCount + 1
+    if idx <= maxMessages then
+        let msgText[idx] = "Hello from script!"
+        let msgTime[idx] = 2
+        let msgActive[idx] = 1
+        let msgCount = idx
+    end
+end

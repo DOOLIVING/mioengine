@@ -1,0 +1,144 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "MioLang",
+  "scopeName": "source.mio",
+  "patterns": [
+    { "include": "#comments" },
+    { "include": "#strings" },
+    { "include": "#numbers" },
+    { "include": "#keywords" },
+    { "include": "#event-handlers" },
+    { "include": "#commands" },
+    { "include": "#builtins" },
+    { "include": "#operators" },
+    { "include": "#identifiers" }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.line.double-slash.mio",
+          "match": "//.*$"
+        }
+      ]
+    },
+    "strings": {
+      "patterns": [
+        {
+          "name": "string.quoted.double.mio",
+          "begin": "\"",
+          "end": "\"",
+          "beginCaptures": { "0": { "name": "punctuation.definition.string.begin.mio" } },
+          "endCaptures": { "0": { "name": "punctuation.definition.string.end.mio" } },
+          "patterns": [
+            {
+              "name": "constant.character.escape.mio",
+              "match": "\\\\(n|t|\\\\|\")"
+            }
+          ]
+        },
+        {
+          "name": "string.quoted.single.mio",
+          "begin": "'",
+          "end": "'",
+          "beginCaptures": { "0": { "name": "punctuation.definition.string.begin.mio" } },
+          "endCaptures": { "0": { "name": "punctuation.definition.string.end.mio" } },
+          "patterns": [
+            {
+              "name": "constant.character.escape.mio",
+              "match": "\\\\(n|t|\\\\|')"
+            }
+          ]
+        }
+      ]
+    },
+    "numbers": {
+      "patterns": [
+        {
+          "name": "constant.numeric.float.mio",
+          "match": "\\b\\d+\\.\\d+\\b"
+        },
+        {
+          "name": "constant.numeric.integer.mio",
+          "match": "\\b\\d+\\b"
+        }
+      ]
+    },
+    "keywords": {
+      "patterns": [
+        {
+          "name": "keyword.control.mio",
+          "match": "\\b(if|then|else|end|loop|forever|for|to|do|break|step)\\b"
+        },
+        {
+          "name": "keyword.other.mio",
+          "match": "\\b(let|from|at|by|speed|towards|not|and|or)\\b"
+        },
+        {
+          "name": "constant.language.mio",
+          "match": "\\b(true|false)\\b"
+        }
+      ]
+    },
+    "event-handlers": {
+      "patterns": [
+        {
+          "name": "entity.name.function.event.mio",
+          "match": "\\b(on_update|on_draw|on_key|on_click|on_collision|on_mouse)\\b"
+        }
+      ]
+    },
+    "commands": {
+      "patterns": [
+        {
+          "name": "support.function.command.mio",
+          "match": "\\b(move|set_pos|get_pos|destroy|say|create_model|add_object|play_sound|stop_sound|set_rot|set_scale|switch_scene|setup_camera|setup_renderer|load_texture|set_mouse|camera_update|camera_collide|exit_game|mute|volume|import|draw_rect|draw_text|draw_circle|draw_line|draw_image|draw_model)\\b"
+        }
+      ]
+    },
+    "builtins": {
+      "patterns": [
+        {
+          "name": "support.function.builtin.mio",
+          "match": "\\b(sin|cos|atan2|sqrt|abs|floor|ceil|min|max|random|dist|pi|type|tostring|tonumber|print)\\b"
+        }
+      ]
+    },
+    "operators": {
+      "patterns": [
+        {
+          "name": "keyword.operator.comparison.mio",
+          "match": "(==|~=|<=|>=|=>)"
+        },
+        {
+          "name": "keyword.operator.assignment.compound.mio",
+          "match": "(\\+=|-=|\\*=|/=)"
+        },
+        {
+          "name": "keyword.operator.assignment.mio",
+          "match": "="
+        },
+        {
+          "name": "keyword.operator.arithmetic.mio",
+          "match": "(\\+|-|\\*|/|%)"
+        },
+        {
+          "name": "keyword.operator.comparison.mio",
+          "match": "(<|>)"
+        },
+        {
+          "name": "keyword.operator.other.mio",
+          "match": "\\b(rotatex|rotatey|scale|size|draworder|fov|sensitivity|loop)\\b"
+        }
+      ]
+    },
+    "identifiers": {
+      "patterns": [
+        {
+          "name": "variable.other.mio",
+          "match": "\\b[a-zA-Z_][a-zA-Z0-9_]*\\b"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,97 @@
+// ========== 2D PHYSICS DEMO ==========
+// Fixed timestep, spatial hash, impulse solver with friction
+
+set_physics_gravity 980
+set_physics_ground 740
+
+// === STATIC PLATFORMS ===
+let ground = create_model "models/cube.txt" at 512, 740, 0 size 1
+set_physics ground, "static", w = 1024, h = 50, tag = "ground"
+
+let plat1 = create_model "models/cube.txt" at 200, 600, 0 size 1
+set_physics plat1, "static", w = 180, h = 15, tag = "platform"
+
+let plat2 = create_model "models/cube.txt" at 500, 500, 0 size 1
+set_physics plat2, "static", w = 150, h = 15, tag = "platform"
+
+let plat3 = create_model "models/cube.txt" at 800, 400, 0 size 1
+set_physics plat3, "static", w = 200, h = 15, tag = "platform"
+
+// === DYNAMIC OBJECTS ===
+let box1 = create_model "models/cube.txt" at 150, 200, 0 size 0.5
+set_physics box1, "dynamic", w = 40, h = 40, bounce = 0.2, friction = 0.8, tag = "box"
+
+let box2 = create_model "models/cube.txt" at 350, 100, 0 size 0.5
+set_physics box2, "dynamic", w = 30, h = 30, bounce = 0.4, friction = 0.6, tag = "box"
+
+let box3 = create_model "models/cube.txt" at 600, 150, 0 size 0.5
+set_physics box3, "dynamic", w = 50, h = 50, bounce = 0.1, friction = 0.9, tag = "box"
+
+let ball1 = create_model "models/cube.txt" at 400, 50, 0 size 0.3
+set_physics ball1, "dynamic", shape = "circle", radius = 18, bounce = 0.7, friction = 0.3, tag = "ball"
+
+let ball2 = create_model "models/cube.txt" at 700, 80, 0 size 0.3
+set_physics ball2, "dynamic", shape = "circle", radius = 14, bounce = 0.9, friction = 0.2, tag = "ball"
+
+// === STACK OF BOXES ===
+let stack1 = create_model "models/cube.txt" at 850, 700, 0 size 0.5
+set_physics stack1, "dynamic", w = 35, h = 35, bounce = 0.1, friction = 0.9, tag = "stack"
+
+let stack2 = create_model "models/cube.txt" at 855, 660, 0 size 0.5
+set_physics stack2, "dynamic", w = 35, h = 35, bounce = 0.1, friction = 0.9, tag = "stack"
+
+let stack3 = create_model "models/cube.txt" at 848, 620, 0 size 0.5
+set_physics stack3, "dynamic", w = 35, h = 35, bounce = 0.1, friction = 0.9, tag = "stack"
+
+let _player = box1
+
+on_update
+    let moveSpeed = 250
+    let rDown = key_down "right"
+    let lDown = key_down "left"
+
+    if rDown then obj_set_vel _player, moveSpeed, _player.vy end
+    if lDown then obj_set_vel _player, -moveSpeed, _player.vy end
+    if not rDown and not lDown then obj_set_vel _player, 0, _player.vy end
+end
+
+on_draw
+    get_canvas_size => W, H
+
+    draw_rect 0, 0, W, H, 0.08, 0.1, 0.15, 1
+
+    // Draw platforms
+    draw_rect 0, H - 50, W, 50, 0.2, 0.35, 0.2, 1
+    draw_rect plat1.x - 90, plat1.y - 7, 180, 15, 0.35, 0.3, 0.2, 1
+    draw_rect plat2.x - 75, plat2.y - 7, 150, 15, 0.35, 0.3, 0.2, 1
+    draw_rect plat3.x - 100, plat3.y - 7, 200, 15, 0.35, 0.3, 0.2, 1
+
+    // Draw dynamic objects
+    draw_rect box1.x - 20, box1.y - 20, 40, 40, 0.85, 0.25, 0.15, 1
+    draw_rect box2.x - 15, box2.y - 15, 30, 30, 0.9, 0.7, 0.1, 1
+    draw_rect box3.x - 25, box3.y - 25, 50, 50, 0.2, 0.6, 0.85, 1
+    draw_circle ball1.x, ball1.y, 18, 0.3, 0.9, 0.3, 1
+    draw_circle ball2.x, ball2.y, 14, 0.9, 0.3, 0.8, 1
+
+    draw_rect stack1.x - 17, stack1.y - 17, 35, 35, 0.6, 0.4, 0.2, 1
+    draw_rect stack2.x - 17, stack2.y - 17, 35, 35, 0.5, 0.35, 0.18, 1
+    draw_rect stack3.x - 17, stack3.y - 17, 35, 35, 0.45, 0.3, 0.15, 1
+
+    // UI
+    draw_text "2D PHYSICS", W / 2, 15, 28, 1, 1, 1, 1, center
+    draw_text "Arrow keys=move  Space=jump", W / 2, 48, 10, 0.5, 0.6, 0.7, 0.8, center
+    draw_text "Fixed Timestep + Spatial Hash + Coulomb Friction", W / 2, 62, 8, 0.4, 0.4, 0.5, 0.6, center
+
+    draw_text "box1: " + str(floor(box1.x)) + "," + str(floor(box1.y)), 10, 90, 8, 0.7, 0.7, 0.7, 0.7
+    draw_text "ball1: " + str(floor(ball1.x)) + "," + str(floor(ball1.y)), 10, 102, 8, 0.7, 0.7, 0.7, 0.7
+
+    ui_button W / 2 - 100, H - 45, 200, 35, "Menu" id = "menu"
+    if ui_clicked "menu" then switch_scene "menu" end
+end
+
+on_key "space"
+    if obj_is_grounded _player then obj_impulse _player, 0, -600 end
+end
+on_key "escape"
+    switch_scene "menu"
+end

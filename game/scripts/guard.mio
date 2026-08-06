@@ -1,0 +1,85 @@
+// Guard - ghost patrols 4 points
+let guard = create_model from "models/deco_ghost.txt" at -4, 0.5, 0
+
+let patrolX1 = -4
+let patrolZ1 = 0
+let patrolX2 = -4
+let patrolZ2 = 4
+let patrolX3 = 4
+let patrolZ3 = 4
+let patrolX4 = 4
+let patrolZ4 = 0
+
+let curPoint = 1
+let guardSpeed = 2
+let arrived = 0
+let waitTimer = 0
+let waitTime = 1.0
+
+say "Guard spawned, patrolling 4 points"
+
+on_update
+    if arrived == 1 then
+        let waitTimer = waitTimer + 0.016
+        if waitTimer >= waitTime then
+            let waitTimer = 0
+            let arrived = 0
+            let curPoint = curPoint + 1
+            if curPoint > 4 then
+                let curPoint = 1
+            end
+        end
+    end
+
+    if arrived == 0 then
+        get_pos guard => gx, gy, gz
+        let tx = 0
+        let tz = 0
+        if curPoint == 1 then
+            let tx = patrolX1
+        end
+        if curPoint == 1 then
+            let tz = patrolZ1
+        end
+        if curPoint == 2 then
+            let tx = patrolX2
+        end
+        if curPoint == 2 then
+            let tz = patrolZ2
+        end
+        if curPoint == 3 then
+            let tx = patrolX3
+        end
+        if curPoint == 3 then
+            let tz = patrolZ3
+        end
+        if curPoint == 4 then
+            let tx = patrolX4
+        end
+        if curPoint == 4 then
+            let tz = patrolZ4
+        end
+        let dx = tx - gx
+        let dz = tz - gz
+        let d = sqrt(dx * dx + dz * dz)
+        if d < 0.2 then
+            let arrived = 1
+            set_pos guard to tx, gy, tz
+        else
+            let nx = dx / d
+            let nz = dz / d
+            move guard by nx * guardSpeed * 0.016, 0, nz * guardSpeed * 0.016
+            let angle = atan2(nz, nx)
+            set_rot angle_x guard angle * -1 + 1.5708
+        end
+    end
+end
+
+on_key "g"
+    get_pos guard => gx, gy, gz
+    get_pos camera => cx, cy, cz
+    let d = dist(cx, cy, cz, gx, gy, gz)
+    if d < 2 then
+        say "Guard spotted you!"
+    end
+end

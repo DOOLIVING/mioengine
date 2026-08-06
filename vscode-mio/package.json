@@ -1,0 +1,27 @@
+{
+  "name": "mio-lang",
+  "displayName": "MioLang Syntax Highlighting",
+  "description": "Syntax highlighting for .mio scripts (mioengine)",
+  "version": "1.0.0",
+  "engines": {
+    "vscode": "^1.74.0"
+  },
+  "categories": ["Programming Languages"],
+  "contributes": {
+    "languages": [
+      {
+        "id": "mio",
+        "aliases": ["MioLang", "mio"],
+        "extensions": [".mio"],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "mio",
+        "scopeName": "source.mio",
+        "path": "./syntaxes/mio.tmLanguage.json"
+      }
+    ]
+  }
+}

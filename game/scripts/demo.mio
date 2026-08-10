@@ -1,0 +1,32 @@
+// demo.mio - helicopter + cube
+
+setup_camera 0, 2.5, 8 speed 5 sensitivity 2
+setup_renderer 320, 240 fov 55
+
+load_texture "heli_tex", "game/models/helicopter.png"
+
+add_object helicopter from "game/models/helicopter.fbx" at 0, 0, 0 scale 1
+set_texture helicopter, "heli_tex"
+
+add_object cube from "Cube.fbx" at -30, 0, 0 scale 1
+
+play_sound music from "game/1.wav" loop
+volume 0.5
+
+on_update
+    camera_update
+end
+
+on_draw
+    draw_text "HELICOPTER", 160, 10, 14, 1, 1, 1, 1, center
+    draw_text "WASD + Mouse", 160, 30, 8, 0.7, 0.7, 0.7, 0.8, center
+    draw_text "M - Menu", 160, 45, 8, 0.5, 0.6, 0.8, 0.7, center
+end
+
+on_key "m"
+    switch_scene "menu"
+end
+
+on_key "escape"
+    switch_scene "menu"
+end

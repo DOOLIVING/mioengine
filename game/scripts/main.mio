@@ -1,3 +1,0 @@
-// ========== MAIN GAME SCRIPT ==========
-// Entry point — imports the current level
-import("game/scripts/level1.mio")

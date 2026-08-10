@@ -1,0 +1,11 @@
+// Script for object: helicopter
+// This script is auto-imported by the main scene script
+
+on_update
+  // Put your update logic here
+  // Access this object via: helicopter.x, helicopter.y, helicopter.z
+end
+
+on_draw
+  // Put your draw logic here
+end

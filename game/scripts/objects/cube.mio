@@ -1,0 +1,11 @@
+// Script for object: cube
+// This script is auto-imported by the main scene script
+
+on_update
+  // Put your update logic here
+  // Access this object via: cube.x, cube.y, cube.z
+end
+
+on_draw
+  // Put your draw logic here
+end

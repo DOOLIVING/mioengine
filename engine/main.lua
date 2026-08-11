@@ -203,6 +203,7 @@ function engine.run(config_path)
             font_small = font_small,
             time = function() return total_time end,
             delta_time = function() return 1/60 end,
+            auto_camera = true,
 
             create_entity = function(name)
                 local ent = engine.SceneNode.new(name)
@@ -502,9 +503,13 @@ function engine.run(config_path)
         end
 
         if mouse_captured then
-            camera:process_keyboard(dt, input)
+            if active_ctx and active_ctx.auto_camera and not camera.locked then
+                camera:process_keyboard(dt, input)
+            end
             local mdx, mdy = input:get_mouse_delta()
-            camera:process_mouse(mdx, mdy)
+            if active_ctx and active_ctx.auto_camera and not camera.locked then
+                camera:process_mouse(mdx, mdy)
+            end
         end
 
         if active_ctx and active_ctx.camera then

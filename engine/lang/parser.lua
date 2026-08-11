@@ -87,6 +87,7 @@ function Parser:parseStatement()
         elseif word == "draw_model" then return self:parseDrawModel()
         elseif word == "import" then return self:parseImport()
         elseif word == "set_rot" then return self:parseSetRot()
+        elseif word == "look_at" then return self:parseLookAt()
         elseif word == "get_canvas_size" then return self:parseGetCanvasSize()
         elseif word == "set_scale" then return self:parseParseScale()
         elseif word == "mute" then self:advance(); return { type = "mute" }
@@ -103,6 +104,15 @@ function Parser:parseStatement()
         elseif word == "set_mouse" then return self:parseSetMouse()
         elseif word == "camera_update" then self:advance(); return { type = "camera_update" }
         elseif word == "camera_collide" then self:advance(); return { type = "camera_collide" }
+        elseif word == "set_fps_camera" then return self:parseSetFpsCamera()
+        elseif word == "set_fly_camera" then self:advance(); return { type = "set_fly_camera" }
+        elseif word == "set_static_camera" then self:advance(); return { type = "set_static_camera" }
+        elseif word == "set_camera_pos" then return self:parseSetCameraPos()
+        elseif word == "camera_speed" then return self:parseCameraSpeed()
+        elseif word == "camera_sensitivity" then return self:parseCameraSensitivity()
+        elseif word == "camera_jump" then return self:parseCameraJump()
+        elseif word == "camera_gravity" then return self:parseCameraGravity()
+        elseif word == "camera_ground" then return self:parseCameraGround()
         elseif word == "exit_game" then self:advance(); return { type = "exit_game" }
         elseif word == "add_object" then return self:parseAddObject()
         elseif word == "add_collider" then return self:parseAddCollider()
@@ -808,6 +818,22 @@ function Parser:parseSetRot()
     local axis = self:expect("ID").value
     local val = self:parseExpr()
     return { type = "setrot", obj = obj, axis = axis, value = val }
+end
+
+function Parser:parseLookAt()
+    self:advance()
+    local obj = self:expect("ID").value
+    local tx = self:parseExpr()
+    local ty, tz
+    if self:at("COMMA") then
+        self:advance()
+        ty = self:parseExpr()
+    end
+    if self:at("COMMA") then
+        self:advance()
+        tz = self:parseExpr()
+    end
+    return { type = "look_at", obj = obj, tx = tx, ty = ty, tz = tz }
 end
 
 function Parser:parseGetCanvasSize()
@@ -2072,6 +2098,72 @@ function Parser:parseExprStatement()
     end
 
     return { type = "expr", expr = expr }
+end
+
+function Parser:parseSetFpsCamera()
+    self:advance()
+    local x, y, z = nil, nil, nil
+    if not self:at("EOF") and not self:at("SPEED") and not self:at("SENSITIVITY") and not self:at("GROUND") and not self:at("JUMP") and not self:at("GRAVITY") then
+        x = self:parseExpr()
+        self:expect("COMMA")
+        y = self:parseExpr()
+        self:expect("COMMA")
+        z = self:parseExpr()
+    end
+    local speed = nil
+    local sensitivity = nil
+    local ground_y = nil
+    local jump_force = nil
+    local gravity = nil
+    while not self:at("EOF") do
+        if self:at("SPEED") then self:advance(); speed = self:parseExpr()
+        elseif self:at("SENSITIVITY") then self:advance(); sensitivity = self:parseExpr()
+        elseif self:at("GROUND") then self:advance(); ground_y = self:parseExpr()
+        elseif self:at("JUMP") then self:advance(); jump_force = self:parseExpr()
+        elseif self:at("GRAVITY") then self:advance(); gravity = self:parseExpr()
+        else break end
+    end
+    return { type = "set_fps_camera", x = x, y = y, z = z, speed = speed, sensitivity = sensitivity, ground_y = ground_y, jump_force = jump_force, gravity = gravity }
+end
+
+function Parser:parseSetCameraPos()
+    self:advance()
+    local x = self:parseExpr()
+    self:expect("COMMA")
+    local y = self:parseExpr()
+    self:expect("COMMA")
+    local z = self:parseExpr()
+    return { type = "set_camera_pos", x = x, y = y, z = z }
+end
+
+function Parser:parseCameraSpeed()
+    self:advance()
+    local val = self:parseExpr()
+    return { type = "camera_speed", value = val }
+end
+
+function Parser:parseCameraSensitivity()
+    self:advance()
+    local val = self:parseExpr()
+    return { type = "camera_sensitivity", value = val }
+end
+
+function Parser:parseCameraJump()
+    self:advance()
+    local val = self:parseExpr()
+    return { type = "camera_jump", value = val }
+end
+
+function Parser:parseCameraGravity()
+    self:advance()
+    local val = self:parseExpr()
+    return { type = "camera_gravity", value = val }
+end
+
+function Parser:parseCameraGround()
+    self:advance()
+    local val = self:parseExpr()
+    return { type = "camera_ground", value = val }
 end
 
 return Parser

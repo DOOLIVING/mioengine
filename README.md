@@ -60,7 +60,7 @@
 
 ```bash
 git clone https://github.com/DOOLIVING/mioengine.git
-cd alone
+cd mioengine
 cd deps && bash build.sh && cd ..
 luajit main.lua
 ```
@@ -142,9 +142,13 @@ luajit main.lua
 ## Структура проекта
 
 ```
-alone/
+mioengine/
 ├── main.lua              # Точка входа (2 строки: require + engine.run)
+├── editor_main.lua       # Точка входа редактора
 ├── mioengine_cli.py      # CLI менеджер проектов
+├── run_editor.sh         # Скрипт запуска редактора
+├── setup.bat             # Скрипт установки (Windows)
+├── .gitignore
 │
 ├── engine/               # Движок
 │   ├── main.lua          # Основной цикл, контекст сцен, инициализация
@@ -184,6 +188,7 @@ alone/
 │   ├── scripts/
 │   │   ├── demo.mio      # Демо сцена (вертолёт + куб)
 │   │   ├── menu.mio      # Главное меню
+│   │   ├── f.mio         # Сцена f
 │   │   └── objects/
 │   │       ├── cube.mio        # Заглушка объекта куба
 │   │       └── helicopter.mio  # Заглушка объекта вертолёта
@@ -354,7 +359,77 @@ end
 
 ## Команды MioLang
 
-### Настройка движка
+### Глобальные объекты
+
+В MioLang доступны три глобальных объекта для управления движком из скриптов: **Camera**, **Input** и **Time**. Все методы вызываются через точку: `Camera.SetPosition(0, 1, 5)`.
+
+---
+
+### Camera — управление камерой
+
+| Метод | Описание | Пример |
+|---|---|---|
+| `Camera.SetPosition(x, y, z)` | Установить позицию камеры | `Camera.SetPosition(0, 1.7, 5)` |
+| `Camera.GetPosition()` | Получить X позицию камеры | `let x = Camera.GetPosition()` |
+| `Camera.GetPositionX()` | Получить X координату | `let x = Camera.GetPositionX()` |
+| `Camera.GetPositionY()` | Получить Y координату | `let y = Camera.GetPositionY()` |
+| `Camera.GetPositionZ()` | Получить Z координату | `let z = Camera.GetPositionZ()` |
+| `Camera.GetDirection()` | Получить направление взгляда (front vector) | `let d = Camera.GetDirection()` |
+| `Camera.GetRotation()` | Получить yaw и pitch | `let yaw = Camera.GetRotation()` |
+| `Camera.SetYaw(yaw)` | Установить горизонтальный угол (градусы) | `Camera.SetYaw(-90)` |
+| `Camera.SetPitch(pitch)` | Установить вертикальный угол (градусы, -89..89) | `Camera.SetPitch(0)` |
+| `Camera.RotateYaw(angle)` | Повернуть по горизонтали на угол | `Camera.RotateYaw(5)` |
+| `Camera.RotatePitch(angle)` | Повернуть по вертикали на угол | `Camera.RotatePitch(-3)` |
+| `Camera.SetSpeed(speed)` | Установить скорость движения | `Camera.SetSpeed(5)` |
+| `Camera.SetSensitivity(sens)` | Установить чувствительность мыши | `Camera.SetSensitivity(2)` |
+| `Camera.SetFOV(fov)` | Установить поле зрения (в градусах) | `Camera.SetFOV(60)` |
+| `Camera.SetLocked(locked)` | Заблокировать/разблокировать камеру | `Camera.SetLocked(true)` |
+| `Camera.IsLocked()` | Проверить, заблокирована ли камера | `if Camera.IsLocked() then ... end` |
+| `Camera.MoveForward(speed)` | Двигаться вперёд по направлению взгляда | `Camera.MoveForward(5)` |
+| `Camera.MoveBack(speed)` | Двигаться назад | `Camera.MoveBack(5)` |
+| `Camera.MoveLeft(speed)` | Двигаться влево (strafe) | `Camera.MoveLeft(5)` |
+| `Camera.MoveRight(speed)` | Двигаться вправо (strafe) | `Camera.MoveRight(5)` |
+| `Camera.MoveUp(speed)` | Двигаться вверх | `Camera.MoveUp(5)` |
+| `Camera.MoveDown(speed)` | Двигаться вниз | `Camera.MoveDown(5)` |
+| `Camera.ProcessMouseFromInput()` | Обработать вращение мышью из текущего ввода | `Camera.ProcessMouseFromInput()` |
+| `Camera.ProcessMouse(dx, dy)` | Обработать вращение мышью по смещению | `Camera.ProcessMouse(10, 5)` |
+| `Camera.DisableEngineCamera()` | Отключить автоматическую обработку камеры движком | `Camera.DisableEngineCamera()` |
+| `Camera.EnableEngineCamera()` | Включить автоматическую обработку камеры движком | `Camera.EnableEngineCamera()` |
+
+**Примечание:** По умолчанию движок автоматически обрабатывает ввод камеры (WASD + мышь) при захвате курсора. Вызов `Camera.DisableEngineCamera()` отключает это поведение, и вся логика камеры становится доступна для управления из скрипта.
+
+---
+
+### Input — проверка ввода
+
+| Метод | Описание | Пример |
+|---|---|---|
+| `Input.IsPressed("key")` | Клавиша удерживается в данном кадре | `if Input.IsPressed("w") then ... end` |
+| `Input.WasPressed("key")` | Клавиша была нажата в этом кадре (однократно) | `if Input.WasPressed("space") then ... end` |
+| `Input.IsMousePressed(btn)` | Кнопка мыши удерживается (0=ЛКМ, 1=ПКМ, 2=СКМ) | `if Input.IsMousePressed(0) then ... end` |
+| `Input.GetMousePos()` | Получить позицию курсора | `let mx = Input.GetMousePos()` |
+| `Input.GetMouseDelta()` | Получить смещение мыши за кадр | `let dx = Input.GetMouseDelta()` |
+| `Input.SetMouseMode("relative")` | Захватить и скрыть курсор | `Input.SetMouseMode("relative")` |
+| `Input.SetMouseMode("visible")` | Показать курсор | `Input.SetMouseMode("visible")` |
+
+**Доступные клавиши:** a-z, 0-9, f1-f12, space, escape, enter, tab, backspace, delete, стрелки, left_shift, right_shift, left_control, right_control, left_alt, right_alt.
+
+---
+
+### Time — время
+
+| Метод | Описание | Пример |
+|---|---|---|
+| `Time.GetDelta()` | Delta time (время кадра в секундах) | `let dt = Time.GetDelta()` |
+| `Time.GetTotal()` | Общее время с начала запуска (в секундах) | `let t = Time.GetTotal()` |
+
+---
+
+### Команды (старый синтаксис)
+
+Команды ниже используют оригинальный синтаксис MioLang и остаются доступны для обратной совместимости.
+
+#### Настройка движка
 
 | Команда | Описание | Пример |
 |---|---|---|
@@ -383,6 +458,7 @@ end
 | `set_pos obj to x, y, z` | Установить позицию | `set_pos player to 0, 1, 0` |
 | `get_pos obj => x, y, z` | Получить позицию в переменные | `get_pos player => px, py, pz` |
 | `set_rot obj axis value` | Установить скорость вращения (axis: x, y, angle_x, angle_y) | `set_rot cube y 0.5` |
+| `look_at obj x, y, z` | Повернуть объект к точке в пространстве | `look_at helicopter 10, 5, 3` |
 | `set_scale obj value` | Установить масштаб | `set_scale cube 2` |
 | `destroy obj` | Удалить объект | `destroy cube` |
 
@@ -754,23 +830,29 @@ height = 720
 [renderer]
 width = 320
 height = 240
-fov = 55
+fov = 60
 snap_size = 40
 fog_density = 0.015
 
 [camera]
 x = 0
-y = 2.5
-z = 8
+y = 1.5
+z = 5
 speed = 5
 sensitivity = 2
 fov = 60
 
+[scene:menu]
+script = game/scripts/menu.mio
+
 [scene:demo]
 script = game/scripts/demo.mio
 
-[scene:menu]
-script = game/scripts/menu.mio
+[scene:test]
+script = game/scripts/demo.mio
+
+[scene:f]
+script = game/scripts/f.mio
 ```
 
 ### Доступные секции
@@ -787,6 +869,8 @@ script = game/scripts/menu.mio
 
 ## Клавиши по умолчанию
 
+При использовании встроенного режима камеры (без `Camera.DisableEngineCamera()`):
+
 | Клавиша | Действие |
 |---|---|
 | W | Движение вперед |
@@ -800,56 +884,85 @@ script = game/scripts/menu.mio
 | Escape | Освободить курсор |
 | F1 | Включить/выключить отладочную информацию |
 
+При использовании `Camera.DisableEngineCamera()` весь ввод обрабатывается в скрипте через `Input.IsPressed()` и `Camera.Move*()`.
+
 Доступные клавиши: a-z, 0-9, f1-f12, space, escape, enter, tab, backspace, delete, стрелки, shift, control, alt.
 
 ---
 
 ## Пример полного скрипта
 
-```
-// demo.mio - полет на вертолете
+```mio
+// demo.mio — FPS камера, всё управление из скрипта
 
-setup_camera 0, 2.5, 8 speed 5 sensitivity 2
-setup_renderer 320, 240 fov 55
+Camera.DisableEngineCamera()
+Camera.SetPosition(0, 1.7, 5)
+Camera.SetSpeed(5)
+Camera.SetSensitivity(2)
+Camera.SetLocked(false)
+
+Input.SetMouseMode("relative")
 
 load_texture "heli_tex", "game/models/helicopter.png"
 
-add_object helicopter from "game/models/helicopter.fbx" at 0, 0, 0 scale 1
+add_object helicopter from "game/models/helicopter.fbx" at 0, 0, -20 scale 1
 set_texture helicopter, "heli_tex"
 
-add_object cube from "Cube.fbx" at -30, 0, 0 scale 1
+let velY = 0
+let grav = -20
+let jumpForce = 8
+let groundY = 1.7
+let onGround = true
 
 on_update
-    camera_update
+    let dt = Time.GetDelta()
 
-    if key_down "w" then
-        move helicopter by 0, 0, -0.1
+    // Вращение мышью
+    Camera.ProcessMouseFromInput()
+
+    // Движение WASD
+    if Input.IsPressed("w") then
+        Camera.MoveForward(5)
     end
-    if key_down "s" then
-        move helicopter by 0, 0, 0.1
+    if Input.IsPressed("s") then
+        Camera.MoveBack(5)
     end
-    if key_down "a" then
-        move helicopter by -0.1, 0, 0
+    if Input.IsPressed("a") then
+        Camera.MoveLeft(5)
     end
-    if key_down "d" then
-        move helicopter by 0.1, 0, 0
+    if Input.IsPressed("d") then
+        Camera.MoveRight(5)
     end
-    if key_down "space" then
-        move helicopter by 0, 0.1, 0
+
+    // Прыжок
+    if Input.IsPressed("space") and onGround then
+        let velY = jumpForce
+        let onGround = false
     end
-    if key_down "left_shift" then
-        move helicopter by 0, -0.1, 0
+
+    // Гравитация
+    let velY = velY + grav * dt
+    let cy = Camera.GetPositionY()
+    let new_y = cy + velY * dt
+
+    if new_y <= groundY then
+        let new_y = groundY
+        let velY = 0
+        let onGround = true
     end
+
+    let cx = Camera.GetPositionX()
+    let cz = Camera.GetPositionZ()
+    Camera.SetPosition(cx, new_y, cz)
 end
 
 on_draw
-    draw_text "HELICOPTER", 160, 10, 14, 1, 1, 1, 1, center
-    draw_text "WASD + Mouse", 160, 30, 8, 0.7, 0.7, 0.7, 0.8, center
-    draw_text "M - Menu", 160, 45, 8, 0.5, 0.6, 0.8, 0.7, center
+    draw_text "FPS CAMERA - WASD + Mouse + Space", 10, 30, 14, 1, 1, 1, 1
 end
 
 on_key "escape"
-    exit_game
+    Input.SetMouseMode("visible")
+    switch_scene "menu"
 end
 ```
 
@@ -896,6 +1009,16 @@ script = game/scripts/my_level.mio
 **Как перезагрузить шейдер без перезапуска?**
 ```
 reload_shader "my_shader"
+```
+
+**Как управлять камерой из скрипта?**
+Вызовите `Camera.DisableEngineCamera()` в начале скрипта, затем используйте методы Camera и Input в `on_update`:
+```mio
+Camera.DisableEngineCamera()
+on_update
+    Camera.ProcessMouseFromInput()
+    if Input.IsPressed("w") then Camera.MoveForward(5) end
+end
 ```
 
 ---

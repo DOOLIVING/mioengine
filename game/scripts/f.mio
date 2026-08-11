@@ -1,0 +1,13 @@
+// menu.mio -Главное меню
+
+setup_camera 0, 1, 5 speed 3 sensitivity 2
+setup_renderer 320, 240 fov 60
+set_mouse visible
+
+on_draw
+    draw_text "MIOENGINE", 160, 60, 20, 1, 1, 1, 1, center
+end
+
+on_key "1"
+    switch_scene "demo"
+end

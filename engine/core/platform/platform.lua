@@ -2,8 +2,8 @@ local ffi = require("ffi")
 
 local M = {}
 
-M.os = ffi.os       -- "Windows", "Linux", "OSX"
-M.arch = ffi.arch   -- "x86", "x86_64", "arm"
+M.os = ffi.os
+M.arch = ffi.arch
 
 function M.lib_ext()
     if M.os == "Windows" then return "dll"

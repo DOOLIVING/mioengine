@@ -25,6 +25,211 @@ function MioLang.new(ctx)
     self.initialized = false
     self._break = false
     self.imageCache = {}
+
+    local math3d = require("engine.core.math")
+
+    self.vars["Camera"] = {
+        MoveForward = function(_, speed)
+            local cam = self.ctx.camera
+            if not cam then return end
+            local dt = self.ctx.dt or 0.016
+            local flat = math3d.vec3(cam.front[0], 0, cam.front[2])
+            flat = math3d.vec3_normalize(flat)
+            local move = math3d.vec3_scale(flat, (speed or cam.speed) * dt)
+            cam.position = math3d.vec3_add(cam.position, move)
+        end,
+        MoveBack = function(_, speed)
+            local cam = self.ctx.camera
+            if not cam then return end
+            local dt = self.ctx.dt or 0.016
+            local flat = math3d.vec3(cam.front[0], 0, cam.front[2])
+            flat = math3d.vec3_normalize(flat)
+            local move = math3d.vec3_scale(flat, (speed or cam.speed) * dt)
+            cam.position = math3d.vec3_sub(cam.position, move)
+        end,
+        MoveLeft = function(_, speed)
+            local cam = self.ctx.camera
+            if not cam then return end
+            local dt = self.ctx.dt or 0.016
+            local move = math3d.vec3_scale(cam.right, (speed or cam.speed) * dt)
+            cam.position = math3d.vec3_sub(cam.position, move)
+        end,
+        MoveRight = function(_, speed)
+            local cam = self.ctx.camera
+            if not cam then return end
+            local dt = self.ctx.dt or 0.016
+            local move = math3d.vec3_scale(cam.right, (speed or cam.speed) * dt)
+            cam.position = math3d.vec3_add(cam.position, move)
+        end,
+        MoveUp = function(_, speed)
+            local cam = self.ctx.camera
+            if not cam then return end
+            local dt = self.ctx.dt or 0.016
+            cam.position[1] = cam.position[1] + (speed or cam.speed) * dt
+        end,
+        MoveDown = function(_, speed)
+            local cam = self.ctx.camera
+            if not cam then return end
+            local dt = self.ctx.dt or 0.016
+            cam.position[1] = cam.position[1] - (speed or cam.speed) * dt
+        end,
+        RotateYaw = function(_, angle)
+            local cam = self.ctx.camera
+            if not cam then return end
+            cam.yaw = cam.yaw + angle
+            cam:update_vectors()
+        end,
+        RotatePitch = function(_, angle)
+            local cam = self.ctx.camera
+            if not cam then return end
+            cam.pitch = cam.pitch + angle
+            if cam.pitch > 89 then cam.pitch = 89 end
+            if cam.pitch < -89 then cam.pitch = -89 end
+            cam:update_vectors()
+        end,
+        GetPosition = function(_)
+            local cam = self.ctx.camera
+            if not cam then return 0, 0, 0 end
+            return cam.position[0], cam.position[1], cam.position[2]
+        end,
+        GetDirection = function(_)
+            local cam = self.ctx.camera
+            if not cam then return 0, 0, -1 end
+            return cam.front[0], cam.front[1], cam.front[2]
+        end,
+        GetRotation = function(_)
+            local cam = self.ctx.camera
+            if not cam then return 0, 0 end
+            return cam.yaw, cam.pitch
+        end,
+        SetPosition = function(_, x, y, z)
+            local cam = self.ctx.camera
+            if not cam then return end
+            cam.position = math3d.vec3(x or 0, y or 0, z or 0)
+        end,
+        SetYaw = function(_, yaw)
+            local cam = self.ctx.camera
+            if not cam then return end
+            cam.yaw = yaw or 0
+            cam:update_vectors()
+        end,
+        SetPitch = function(_, pitch)
+            local cam = self.ctx.camera
+            if not cam then return end
+            cam.pitch = pitch or 0
+            if cam.pitch > 89 then cam.pitch = 89 end
+            if cam.pitch < -89 then cam.pitch = -89 end
+            cam:update_vectors()
+        end,
+        SetSpeed = function(_, speed)
+            local cam = self.ctx.camera
+            if not cam then return end
+            cam.speed = speed or 5
+        end,
+        SetSensitivity = function(_, sens)
+            local cam = self.ctx.camera
+            if not cam then return end
+            cam.sensitivity = (sens or 2) * 0.001
+        end,
+        SetFOV = function(_, fov)
+            local cam = self.ctx.camera
+            if not cam then return end
+            cam.fov = math.rad(fov or 60)
+        end,
+        SetLocked = function(_, locked)
+            local cam = self.ctx.camera
+            if not cam then return end
+            cam.locked = locked
+        end,
+        SetFPSMode = function(_, enabled)
+            local cam = self.ctx.camera
+            if not cam then return end
+            cam.fps_mode = enabled
+        end,
+        DisableEngineCamera = function(_)
+            self.ctx.auto_camera = false
+        end,
+        EnableEngineCamera = function(_)
+            self.ctx.auto_camera = true
+        end,
+        ProcessMouse = function(_, dx, dy)
+            local cam = self.ctx.camera
+            if not cam then return end
+            cam.yaw = cam.yaw + dx * cam.sensitivity * 50
+            cam.pitch = cam.pitch - dy * cam.sensitivity * 50
+            if cam.pitch > 89 then cam.pitch = 89 end
+            if cam.pitch < -89 then cam.pitch = -89 end
+            cam:update_vectors()
+        end,
+        ProcessMouseFromInput = function(_)
+            local cam = self.ctx.camera
+            if not cam then return end
+            if not self.ctx.input then return end
+            local dx, dy = self.ctx.input:get_mouse_delta()
+            cam.yaw = cam.yaw + dx * cam.sensitivity * 50
+            cam.pitch = cam.pitch - dy * cam.sensitivity * 50
+            if cam.pitch > 89 then cam.pitch = 89 end
+            if cam.pitch < -89 then cam.pitch = -89 end
+            cam:update_vectors()
+        end,
+        GetPositionX = function(_)
+            local cam = self.ctx.camera
+            if not cam then return 0 end
+            return cam.position[0]
+        end,
+        GetPositionY = function(_)
+            local cam = self.ctx.camera
+            if not cam then return 0 end
+            return cam.position[1]
+        end,
+        GetPositionZ = function(_)
+            local cam = self.ctx.camera
+            if not cam then return 0 end
+            return cam.position[2]
+        end,
+        IsLocked = function(_)
+            local cam = self.ctx.camera
+            if not cam then return true end
+            return cam.locked
+        end,
+    }
+
+    self.vars["Input"] = {
+        IsPressed = function(_, key)
+            if self.ctx.input then return self.ctx.input:is_down(key) end
+            return false
+        end,
+        WasPressed = function(_, key)
+            if self.ctx.input then return self.ctx.input:is_pressed(key) end
+            return false
+        end,
+        IsMousePressed = function(_, btn)
+            if self.ctx.input then return self.ctx.input:mouse_down(btn or 0) end
+            return false
+        end,
+        GetMousePos = function(_)
+            if self.ctx.input then return self.ctx.input.mouse_x, self.ctx.input.mouse_y end
+            return 0, 0
+        end,
+        GetMouseDelta = function(_)
+            if self.ctx.input then return self.ctx.input.mouse_dx, self.ctx.input.mouse_dy end
+            return 0, 0
+        end,
+        SetMouseMode = function(_, mode)
+            if self.ctx.set_mouse then self.ctx.set_mouse(mode) end
+        end,
+    }
+
+    self.vars["Time"] = {
+        GetDelta = function(_)
+            return self.ctx.dt or 0.016
+        end,
+        GetTotal = function(_)
+            if self.ctx.time then return self.ctx.time() end
+            return 0
+        end,
+    }
+
     return self
 end
 

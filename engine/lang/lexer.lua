@@ -12,6 +12,7 @@ local KEYWORDS = {
     ["button"] = true, ["checkbox"] = true, ["slider"] = true, ["label"] = true,
     ["checked"] = true, ["visible"] = true, ["hidden"] = true,
     ["action"] = true,
+    ["gravity"] = true, ["ground"] = true, ["jump"] = true,
 }
 
 local TWO_CHAR = {

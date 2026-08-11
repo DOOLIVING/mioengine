@@ -29,3 +29,6 @@ script=game/scripts/demo.mio
 
 [scene:test]
 script=game/scripts/demo.mio
+
+[scene:f]
+script=game/scripts/f.mio

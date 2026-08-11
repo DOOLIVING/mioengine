@@ -23,6 +23,12 @@ function M.new(params)
     cam.last_x = 400
     cam.last_y = 300
     cam.locked = false
+    cam.fps_mode = false
+    cam.velY = 0
+    cam.gravity = -20
+    cam.groundY = 1.7
+    cam.jumpForce = 8
+    cam.onGround = true
     cam:update_vectors()
     return cam
 end
@@ -51,26 +57,61 @@ end
 
 function M:process_keyboard(dt, input)
     if self.locked then return end
-    local velocity = math3d.vec3_scale(self.front, self.speed * dt)
-    local strafe = math3d.vec3_scale(self.right, self.speed * dt)
 
-    if input:is_down("w") then
-        self.position = math3d.vec3_add(self.position, velocity)
-    end
-    if input:is_down("s") then
-        self.position = math3d.vec3_sub(self.position, velocity)
-    end
-    if input:is_down("a") then
-        self.position = math3d.vec3_sub(self.position, strafe)
-    end
-    if input:is_down("d") then
-        self.position = math3d.vec3_add(self.position, strafe)
-    end
-    if input:is_down("space") then
-        self.position[1] = self.position[1] + self.speed * dt
-    end
-    if input:is_down("left_shift") or input:is_down("right_shift") then
-        self.position[1] = self.position[1] - self.speed * dt
+    if self.fps_mode then
+        local flat_front = math3d.vec3(self.front[0], 0, self.front[2])
+        flat_front = math3d.vec3_normalize(flat_front)
+        local velocity = math3d.vec3_scale(flat_front, self.speed * dt)
+        local strafe = math3d.vec3_scale(self.right, self.speed * dt)
+
+        if input:is_down("w") then
+            self.position = math3d.vec3_add(self.position, velocity)
+        end
+        if input:is_down("s") then
+            self.position = math3d.vec3_sub(self.position, velocity)
+        end
+        if input:is_down("a") then
+            self.position = math3d.vec3_sub(self.position, strafe)
+        end
+        if input:is_down("d") then
+            self.position = math3d.vec3_add(self.position, strafe)
+        end
+
+        if input:is_down("space") and self.onGround then
+            self.velY = self.jumpForce
+            self.onGround = false
+        end
+
+        self.velY = self.velY + self.gravity * dt
+        self.position[1] = self.position[1] + self.velY * dt
+
+        if self.position[1] <= self.groundY then
+            self.position[1] = self.groundY
+            self.velY = 0
+            self.onGround = true
+        end
+    else
+        local velocity = math3d.vec3_scale(self.front, self.speed * dt)
+        local strafe = math3d.vec3_scale(self.right, self.speed * dt)
+
+        if input:is_down("w") then
+            self.position = math3d.vec3_add(self.position, velocity)
+        end
+        if input:is_down("s") then
+            self.position = math3d.vec3_sub(self.position, velocity)
+        end
+        if input:is_down("a") then
+            self.position = math3d.vec3_sub(self.position, strafe)
+        end
+        if input:is_down("d") then
+            self.position = math3d.vec3_add(self.position, strafe)
+        end
+        if input:is_down("space") then
+            self.position[1] = self.position[1] + self.speed * dt
+        end
+        if input:is_down("left_shift") or input:is_down("right_shift") then
+            self.position[1] = self.position[1] - self.speed * dt
+        end
     end
 end
 

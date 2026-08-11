@@ -1,32 +1,92 @@
-// demo.mio - helicopter + cube
+// demo.mio - FPS камера, всё в скрипте
 
-setup_camera 0, 2.5, 8 speed 5 sensitivity 2
-setup_renderer 320, 240 fov 55
+Camera.DisableEngineCamera()
+Camera.SetPosition(0, 1.7, 5)
+Camera.SetSpeed(5)
+Camera.SetSensitivity(2)
+Camera.SetLocked(false)
+
+Input.SetMouseMode("relative")
+
+add_object floor from "Cube.fbx" at 0, -20, 0 scale 1
 
 load_texture "heli_tex", "game/models/helicopter.png"
 
-add_object helicopter from "game/models/helicopter.fbx" at 0, 0, 0 scale 1
+add_object helicopter from "game/models/helicopter.fbx" at 0, 0, -20 scale 1
 set_texture helicopter, "heli_tex"
-
-add_object cube from "Cube.fbx" at -30, 0, 0 scale 1
 
 play_sound music from "game/1.wav" loop
 volume 0.5
 
+let velY = 0
+let grav = -20
+let jumpForce = 8
+let groundY = 1.7
+let onGround = true
+let heli_angle = 0
+
 on_update
-    camera_update
+    let dt = Time.GetDelta()
+
+    // мышь
+    Camera.ProcessMouseFromInput()
+
+    // движение
+    if Input.IsPressed("w") then
+        Camera.MoveForward(5)
+    end
+    if Input.IsPressed("s") then
+        Camera.MoveBack(5)
+    end
+    if Input.IsPressed("a") then
+        Camera.MoveLeft(5)
+    end
+    if Input.IsPressed("d") then
+        Camera.MoveRight(5)
+    end
+
+    // прыжок
+    if Input.IsPressed("space") and onGround then
+        let velY = jumpForce
+        let onGround = false
+    end
+
+    // гравитация
+    let velY = velY + grav * dt
+    let cy = Camera.GetPositionY()
+    let new_y = cy + velY * dt
+
+    if new_y <= groundY then
+        let new_y = groundY
+        let velY = 0
+        let onGround = true
+    end
+
+    let cx = Camera.GetPositionX()
+    let cz = Camera.GetPositionZ()
+    Camera.SetPosition(cx, new_y, cz)
+
+    // вертолёт
+    let heli_angle = heli_angle + dt * 50
+    helicopter.angleY = heli_angle
+    helicopter.markDirty()
+
+    let hx = sin(heli_angle * 0.02) * 10
+    let hz = cos(heli_angle * 0.02) * 10 - 20
+    helicopter.x = hx
+    helicopter.z = hz
+    helicopter.markDirty()
 end
 
 on_draw
-    draw_text "HELICOPTER", 160, 10, 14, 1, 1, 1, 1, center
-    draw_text "WASD + Mouse", 160, 30, 8, 0.7, 0.7, 0.7, 0.8, center
-    draw_text "M - Menu", 160, 45, 8, 0.5, 0.6, 0.8, 0.7, center
-end
-
-on_key "m"
-    switch_scene "menu"
+    draw_text "FPS CAMERA - WASD + Mouse + Space", 10, 30, 14, 1, 0, 1, 1
 end
 
 on_key "escape"
+    Input.SetMouseMode("visible")
     switch_scene "menu"
+end
+
+on_key "f"
+    switch_scene "f"
 end

@@ -210,6 +210,9 @@ function M:exec(stmt)
             end
         end
 
+    elseif stmt.type == "look_at" then
+        self:execLookAt(stmt)
+
     elseif stmt.type == "set_shader_uniform" then
         local obj_val = self:evalExpr(stmt.obj)
         local obj_name
@@ -254,6 +257,66 @@ function M:exec(stmt)
     elseif stmt.type == "camera_update" then
 
     elseif stmt.type == "camera_collide" then
+
+    elseif stmt.type == "set_fps_camera" then
+        if self.ctx.camera then
+            local cam = self.ctx.camera
+            cam.fps_mode = true
+            if stmt.x ~= nil then
+                local x = tonumber(self:evalExpr(stmt.x)) or 0
+                local y = tonumber(self:evalExpr(stmt.y)) or 1.7
+                local z = tonumber(self:evalExpr(stmt.z)) or 0
+                cam.position = require("engine.core.math").vec3(x, y, z)
+            end
+            if stmt.speed then cam.speed = tonumber(self:evalExpr(stmt.speed)) or 5 end
+            if stmt.sensitivity then cam.sensitivity = (tonumber(self:evalExpr(stmt.sensitivity)) or 2) * 0.001 end
+            if stmt.ground_y then cam.groundY = tonumber(self:evalExpr(stmt.ground_y)) or 1.7 end
+            if stmt.jump_force then cam.jumpForce = tonumber(self:evalExpr(stmt.jump_force)) or 8 end
+            if stmt.gravity then cam.gravity = tonumber(self:evalExpr(stmt.gravity)) or -20 end
+        end
+
+    elseif stmt.type == "set_fly_camera" then
+        if self.ctx.camera then
+            self.ctx.camera.fps_mode = false
+        end
+
+    elseif stmt.type == "set_static_camera" then
+        if self.ctx.camera then
+            self.ctx.camera.locked = true
+        end
+
+    elseif stmt.type == "set_camera_pos" then
+        if self.ctx.camera then
+            local x = tonumber(self:evalExpr(stmt.x)) or 0
+            local y = tonumber(self:evalExpr(stmt.y)) or 2
+            local z = tonumber(self:evalExpr(stmt.z)) or 0
+            self.ctx.camera.position = require("engine.core.math").vec3(x, y, z)
+        end
+
+    elseif stmt.type == "camera_speed" then
+        if self.ctx.camera then
+            self.ctx.camera.speed = tonumber(self:evalExpr(stmt.value)) or 5
+        end
+
+    elseif stmt.type == "camera_sensitivity" then
+        if self.ctx.camera then
+            self.ctx.camera.sensitivity = (tonumber(self:evalExpr(stmt.value)) or 2) * 0.001
+        end
+
+    elseif stmt.type == "camera_jump" then
+        if self.ctx.camera then
+            self.ctx.camera.jumpForce = tonumber(self:evalExpr(stmt.value)) or 8
+        end
+
+    elseif stmt.type == "camera_gravity" then
+        if self.ctx.camera then
+            self.ctx.camera.gravity = tonumber(self:evalExpr(stmt.value)) or -20
+        end
+
+    elseif stmt.type == "camera_ground" then
+        if self.ctx.camera then
+            self.ctx.camera.groundY = tonumber(self:evalExpr(stmt.value)) or 1.7
+        end
 
     elseif stmt.type == "exit_game" then
         if self.ctx.exit_game then self.ctx.exit_game() end
@@ -899,6 +962,23 @@ function M:execSetRot(stmt)
     elseif stmt.axis == "angle_x" then obj.angleX = val
     elseif stmt.axis == "angle_y" then obj.angleY = val
     end
+    if obj.markDirty then obj:markDirty() end
+end
+
+function M:execLookAt(stmt)
+    local obj = self.vars[stmt.obj]
+    if not obj then return end
+    local tx = tonumber(self:evalExpr(stmt.tx)) or 0
+    local ty = tonumber(self:evalExpr(stmt.ty)) or 0
+    local tz = tonumber(self:evalExpr(stmt.tz)) or 0
+    local dx = tx - (obj.x or 0)
+    local dy = ty - (obj.y or 0)
+    local dz = tz - (obj.z or 0)
+    if dx == 0 and dz == 0 then return end
+    local yaw = math.deg(math.atan2(dz, dx))
+    local pitch = math.deg(math.atan2(dy, math.sqrt(dx * dx + dz * dz)))
+    obj.angleY = yaw
+    obj.angleX = -pitch
     if obj.markDirty then obj:markDirty() end
 end
 
